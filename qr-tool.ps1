@@ -138,18 +138,20 @@ do {
             $timeDiff      = (Get-Date) - $lastWriteTime
 
             if ($timeDiff.TotalSeconds -lt $mtimeThresholdSeconds) {
-                Write-Host "$($file.Name) is too new, skipping for now."
+                Write-Host "$($file.Name) is too new, skipping it for now."
                 continue
             }
 
-            $dicomFile   = [Dicom.DicomFile]::Open($file.FullName)
-            $dataset     = $dicomFile.Dataset
-            $method      = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
-            $patientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
-            $patiendDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
+            $dicomFile       = [Dicom.DicomFile]::Open($file.FullName)
+            $dataset         = $dicomFile.Dataset
+            $method          = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+            $filePatientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
+            $filePatiendDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
+            $fileStudyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string] ""))
             
-            Write-Host "Patient Name: $patientName"
-            Write-Host "Patient DOB:  $patiendDob"
+            Write-Host "Patient Name: $filePatientName"
+            Write-Host "Patient DOB:  $filePatiendDob"
+            Write-Host "Study Date:   $fileStudydate"
             
             # if ($file.Length -gt 50000) {
             #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
