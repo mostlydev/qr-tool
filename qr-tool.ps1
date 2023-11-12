@@ -5,9 +5,9 @@
 ##################################################################################################################################
 # Configurable globals
 ##################################################################################################################################
-$sleepSeconds             = 0 # 3 # if greater than 0, script loops, sleeping $sleepSeconds seconds each time.
-$mtimeThreshholdSeconds   = 3
-$largeFileThreshholdBytes = 50000
+$global:sleepSeconds             = 0 # 3 # if greater than 0, script loops, sleeping $global:sleepSeconds seconds each time.
+$global:mtimeThreshholdSeconds   = 3
+$global:largeFileThreshholdBytes = 50000
 ##################################################################################################################################
 
 
@@ -145,7 +145,7 @@ do {
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
-            if ($timeDiff.TotalSeconds -lt $mtimeThresholdSeconds) {
+            if ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds) {
                 Write-Host "    $($file.Name) is too new, skipping it for now."
                 continue
             }
@@ -163,7 +163,7 @@ do {
             Write-Host "    Study Date:   $fileStudydate"
             Write-Host "    Hash Input:   $hashInput"
             
-            if ($file.Length -gt $largeFileThreshholdBytes) {
+            if ($file.Length -gt $global:largeFileThreshholdBytes) {
                 if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
                     $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
                 }
@@ -190,10 +190,10 @@ do {
         ##########################################################################################################################
     }
 
-    if ($sleepSeconds -gt 0) {
-        Write-Host "Sleeping $($sleepSeconds) seconds..."
-        Start-Sleep -Seconds $sleepSeconds 
+    if ($global:sleepSeconds -gt 0) {
+        Write-Host "Sleeping $($global:sleepSeconds) seconds..."
+        Start-Sleep -Seconds $global:sleepSeconds 
     }
     ##############################################################################################################################
-} while ($sleepSeconds -gt 0)#
+} while ($global:sleepSeconds -gt 0)#
 ##################################################################################################################################
