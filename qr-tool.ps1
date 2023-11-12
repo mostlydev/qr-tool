@@ -146,12 +146,14 @@ do {
             $dataset         = $dicomFile.Dataset
             $method          = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
             $filePatientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
-            $filePatiendDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
+            $filePatientDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
             $fileStudyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string] ""))
-            
+            $hashInput       = "$filePatientName--$filePatientDob--$fileStudyDate"
+
             Write-Host "Patient Name: $filePatientName"
-            Write-Host "Patient DOB:  $filePatiendDob"
+            Write-Host "Patient DOB:  $filePatientDob"
             Write-Host "Study Date:   $fileStudydate"
+            Write-Host "Hash Input:   $hashInput"
             
             # if ($file.Length -gt 50000) {
             #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
