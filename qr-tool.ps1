@@ -74,29 +74,63 @@ function Require-NuGetPackage {
 
 ########################################################################################################################
 $scriptHome             = $PSScriptRoot
+########################################################################################################################
+
+
+########################################################################################################################
 $packagesDirPath        = Join-Path -Path $scriptHome      -ChildPath "packages"
-$requestsDirPath        = Join-Path -Path $scriptHome      -ChildPath "requests"
-########################################################################################################################
-$queueDirPath           = Join-Path -Path $scriptHome      -ChildPath "queue"
-########################################################################################################################
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
 $foDicomDirPath         = Join-Path -Path $packagesDirPath -ChildPath "$foDicomName.$foDicomVersion"
 $foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath  -ChildPath "lib\net45\Dicom.Core.dll"
-########################################################################################################################
-
-
-########################################################################################################################
-Require-DirectoryExists -DirectoryPath $packagesDirPath -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $requestsDirPath -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $queueDirPath
-
+#=======================================================================================================================
 Require-NuGetPackage `
     -PackageName $foDicomName `
     -PackageVersion $foDicomVersion `
     -ExpectedDllPath $foDicomExpectedDllPath `
     -DestinationDir $packagesDirPath
-
 $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
+########################################################################################################################
 
+
+########################################################################################################################
+$inboundDirPath         = Join-Path -Path $scriptHome      -ChildPath "inbound"
+$queuedDirPath          = Join-Path -Path $scriptHome      -ChildPath "queued"
+$requestsDirPath        = Join-Path -Path $scriptHome      -ChildPath "requests"
+#=======================================================================================================================
+Require-DirectoryExists -DirectoryPath $inboundDirPath # if this doesn't already exist, assume something is seriously wrong.
+Require-DirectoryExists -DirectoryPath $queuedDirPath   -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $requestsDirPath -CreateIfNotExists $true
+########################################################################################################################
+
+
+$filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
+
+if ($filesInInbound.Count -eq 0) {
+  Write-Host "No DCM files found in the folder."
+}
+else {
+    foreach ($file in $filesInInbound) {
+        Write-Host "Processing $file..."
+    # if ($file.Length -gt 50000) {
+    #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
+    # }
+    # $dcmData = & dcmdump $file.FullName
+    # $patientName = ($dcmData | Select-String "0010,0010" | Out-String).Trim()
+    # $dob = ($dcmData | Select-String "0010,0030" | Out-String).Trim()
+    # $scanDate = ($dcmData | Select-String "0008,0020" | Out-String).Trim()
+    # $hashInput = $patientName + $dob + $scanDate
+
+    # $hash = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
+    # $newPath = "$baseDirPath\queue\$hash.dcm"
+
+    # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
+    #   Move-Item -Path $file.FullName -Destination $newPath
+    # }
+    # else {
+    #   Remove-Item -Path $file.FullName
+    # }
+    # $processedHashes[$hash] = $true
+  }
+}
 
