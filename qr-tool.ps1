@@ -166,9 +166,11 @@ do {
                 Write-Host "    Pixel Data stripped from large file $file."
             }
             
-            
-            # $hash = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
-            # $newPath = "$baseDirPath\queue\$hash.dcm"
+            $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
+
+            Write-Host "    Hash Output:  $hashOutput"
+
+            # $newPath = "$baseDirPath\queue\$hashOutput.dcm"
             
             # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
             #   Move-Item -Path $file.FullName -Destination $newPath
