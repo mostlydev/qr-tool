@@ -20,12 +20,20 @@ $global:indent                   = 0
 
 
 ##################################################################################################################################
-function WriteIndented {
+function Write-Indented {
     param (
-        [string]$Message
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [switch]$NoNewLine
     )
-    $indentation = " " * (2 * $global:indent)
-    Write-Host "${indentation}${Message}"
+
+    $indentString = " " * (2 * $global:indent)
+    if ($NoNewLine) {
+        Write-Host "$indentString$Message" -NoNewline
+    } else {
+        Write-Host "$indentString$Message"
+    }
 }
 ##################################################################################################################################
 
@@ -59,20 +67,20 @@ function Require-DirectoryExists {
                 Throw "$DirectoryPath does not exist."
             }
             
-            Write-Host "Didn't find $DirectoryPath, creating it..." -NoNewline
+            Write-Indented "Didn't find $DirectoryPath, creating it..." -NoNewline
             $null = New-Item -ItemType Directory -Path $DirectoryPath
             
             if (-Not (Test-Path -Path $DirectoryPath)) {
                 Throw "Failed to create directory at $DirectoryPath."
             } else {
-                Write-Host " done."
+                Write-Indented " done."
             }
         } else {
-            Write-Host "Found $DirectoryPath."
+            Write-Indented "Found $DirectoryPath."
         }
     }
     catch {
-        Write-Host "Error: $_"
+        Write-Indented "Error: $_"
         
         Exit 1
     }
@@ -90,7 +98,7 @@ function Require-NuGetPackage {
     )
     try {        
         if (-Not (Test-Path -Path $ExpectedDllPath)) {
-            Write-Host "Didn't find $ExpectedDllPath, installing $PackageName..." -NoNewline
+            Write-Indented "Didn't find $ExpectedDllPath, installing $PackageName..." -NoNewline
             $null = Install-Package `
             -Name            $PackageName `
             -ProviderName    NuGet `
@@ -102,14 +110,14 @@ function Require-NuGetPackage {
             if (-Not (Test-Path -Path $ExpectedDllPath)) {
                 Throw "Failed to install $PackageName."
             } else {
-                Write-Host " done."
+                Write-Indented " done."
             }
         } else {
-            Write-Host "Found $ExpectedDllPath."
+            Write-Indented "Found $ExpectedDllPath."
         }
     }
     catch {
-        Write-Host "Error: $_"
+        Write-Indented "Error: $_"
         
         Exit 1
     }
@@ -157,23 +165,23 @@ do {
     $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
     if ($filesInInbound.Count -eq 0) {
-        Write-Host "No DCM files found in inbound."
+        Write-Indented "No DCM files found in inbound."
     } else {
         $counter = 0
         
-        Write-Host "Found $($filesInInbound.Count) files in inbound."
+        Write-Indented "Found $($filesInInbound.Count) files in inbound."
         
         ##########################################################################################################################
         foreach ($file in $filesInInbound) {
             $counter++
 
-            Write-Host "  Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
+            Write-Indented "  Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
             
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
             if ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds) {
-                Write-Host "    $($file.Name) is too new, skipping it for now."
+                Write-Indented "    $($file.Name) is too new, skipping it for now."
                 continue
             }
 
@@ -185,10 +193,10 @@ do {
             $fileStudyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string] ""))
             $hashInput       = "$filePatientName-$filePatientDob-$fileStudyDate"
 
-            Write-Host "    Patient Name: $filePatientName"
-            Write-Host "    Patient DOB:  $filePatientDob"
-            Write-Host "    Study Date:   $fileStudydate"
-            Write-Host "    Hash Input:   $hashInput"
+            Write-Indented "    Patient Name: $filePatientName"
+            Write-Indented "    Patient DOB:  $filePatientDob"
+            Write-Indented "    Study Date:   $fileStudydate"
+            Write-Indented "    Hash Input:   $hashInput"
             
             if ($file.Length -gt $global:largeFileThreshholdBytes) {
                 if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
@@ -197,12 +205,12 @@ do {
 
                 $dicomFile.Save($file.FullName)
 
-                Write-Host "    Pixel Data stripped from large file $file."
+                Write-Indented "    Pixel Data stripped from large file $file."
             }
             
             $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
 
-            Write-Host "    Hash Output:  $hashOutput"
+            Write-Indented "    Hash Output:  $hashOutput"
 
             # $newPath = "$baseDirPath\queue\$hashOutput.dcm"
             
@@ -218,7 +226,7 @@ do {
     }
 
     if ($global:sleepSeconds -gt 0) {
-        Write-Host "Sleeping $($global:sleepSeconds) seconds..."
+        Write-Indented "Sleeping $($global:sleepSeconds) seconds..."
         Start-Sleep -Seconds $global:sleepSeconds 
     }
     ##############################################################################################################################
