@@ -1,6 +1,7 @@
 # PS D:\qr-tool> Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -Scope CurrentUser -Destination "packages" -Force
 # Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -RequiredVersion 4.0.8 -Scope CurrentUser -Destination . -Force
 
+
 ##################################################################################################################################
 function Require-DirectoryExists {
     param(
@@ -72,14 +73,18 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 
 
+##################################################################################################################################
+# Basic globals
 ##################################################################################################################################
-$scriptHome             = $PSScriptRoot
 $sleep                  = 3 # if greater than 0, script loops, sleeping $sleep seconds each time.
+$scriptHomeDirPath      = $PSScriptRoot
 ##################################################################################################################################
 
 
 ##################################################################################################################################
-$packagesDirPath        = Join-Path -Path $scriptHome      -ChildPath "packages"
+# Set up packages
+##################################################################################################################################
+$packagesDirPath        = Join-Path -Path $scriptHomeDirPath      -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
 $foDicomDirPath         = Join-Path -Path $packagesDirPath -ChildPath "$foDicomName.$foDicomVersion"
@@ -95,10 +100,12 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 
 
 ##################################################################################################################################
-$inboundDirPath          = Join-Path -Path $scriptHome  -ChildPath "inbound"
-$queuedDirPath           = Join-Path -Path $scriptHome  -ChildPath "queued"
-$outboundRequestsDirPath = Join-Path -Path $scriptHome  -ChildPath "outbound-requests"
-$sentRequestsDirPath     = Join-Path -Path $scriptHome  -ChildPath "sent-requests"
+# Require some directories
+##################################################################################################################################
+$inboundDirPath          = Join-Path -Path $scriptHomeDirPath  -ChildPath "inbound"
+$queuedDirPath           = Join-Path -Path $scriptHomeDirPath  -ChildPath "queued"
+$outboundRequestsDirPath = Join-Path -Path $scriptHomeDirPath  -ChildPath "outbound-requests"
+$sentRequestsDirPath     = Join-Path -Path $scriptHomeDirPath  -ChildPath "sent-requests"
 #=================================================================================================================================
 Require-DirectoryExists -DirectoryPath $inboundDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedDirPath           -CreateIfNotExists $true
@@ -107,10 +114,10 @@ Require-DirectoryExists -DirectoryPath $sentRequestsDirPath     -CreateIfNotExis
 ##################################################################################################################################
 
 
+##################################################################################################################################
+# Main
+##################################################################################################################################
 do {
-    ##############################################################################################################################
-    # Main
-    ##############################################################################################################################
     $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
     if ($filesInInbound.Count -eq 0) {
@@ -161,4 +168,5 @@ do {
     
     Start-Sleep -Seconds $sleep 
     ##############################################################################################################################
-} while ($sleep -gt 0)
+} while ($sleep -gt 0)#
+##################################################################################################################################
