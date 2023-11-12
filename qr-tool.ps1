@@ -135,8 +135,9 @@ do {
             
             $dicomFile = [Dicom.DicomFile]::Open($file.FullName)
             $dataset = $dicomFile.Dataset
-            $patientName = $dataset.GetString([Dicom.DicomTag]::PatientName)
-            
+            $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+
+            $patientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
             Write-Host "Patient Name: $patientName"
             
             # if ($file.Length -gt 50000) {
