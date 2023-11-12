@@ -14,8 +14,8 @@ $global:largeFileThreshholdBytes = 50000
 ##################################################################################################################################
 # Other globals
 ##################################################################################################################################
-$scriptHomeDirPath        = $PSScriptRoot
-$indent                   = 0
+$global:scriptHomeDirPath        = $PSScriptRoot
+$global:indent                   = 0
 ##################################################################################################################################
 
 
@@ -93,7 +93,7 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 # Set up packages
 ##################################################################################################################################
-$packagesDirPath        = Join-Path -Path $scriptHomeDirPath  -ChildPath "packages"
+$packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
 $foDicomDirPath         = Join-Path -Path $packagesDirPath -ChildPath "$foDicomName.$foDicomVersion"
@@ -111,10 +111,10 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 ##################################################################################################################################
 # Require some directories
 ##################################################################################################################################
-$inboundDirPath          = Join-Path -Path $scriptHomeDirPath  -ChildPath "inbound"
-$queuedDirPath           = Join-Path -Path $scriptHomeDirPath  -ChildPath "queued"
-$outboundRequestsDirPath = Join-Path -Path $scriptHomeDirPath  -ChildPath "outbound-requests"
-$sentRequestsDirPath     = Join-Path -Path $scriptHomeDirPath  -ChildPath "sent-requests"
+$inboundDirPath          = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "inbound"
+$queuedDirPath           = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "queued"
+$outboundRequestsDirPath = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "outbound-requests"
+$sentRequestsDirPath     = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "sent-requests"
 #=================================================================================================================================
 Require-DirectoryExists -DirectoryPath $inboundDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedDirPath           -CreateIfNotExists $true
