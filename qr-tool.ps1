@@ -133,13 +133,13 @@ do {
         foreach ($file in $filesInInbound) {
             $counter++
 
-            Write-Host "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
+            Write-Host "  Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
             
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
             if ($timeDiff.TotalSeconds -lt $mtimeThresholdSeconds) {
-                Write-Host "$($file.Name) is too new, skipping it for now."
+                Write-Host "    $($file.Name) is too new, skipping it for now."
                 continue
             }
 
@@ -149,21 +149,21 @@ do {
             $filePatientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
             $filePatientDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
             $fileStudyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string] ""))
-            $hashInput       = "$filePatientName--$filePatientDob--$fileStudyDate"
+            $hashInput       = "$filePatientName-$filePatientDob-$fileStudyDate"
 
-            Write-Host "Patient Name: $filePatientName"
-            Write-Host "Patient DOB:  $filePatientDob"
-            Write-Host "Study Date:   $fileStudydate"
-            Write-Host "Hash Input:   $hashInput"
+            Write-Host "    Patient Name: $filePatientName"
+            Write-Host "    Patient DOB:  $filePatientDob"
+            Write-Host "    Study Date:   $fileStudydate"
+            Write-Host "    Hash Input:   $hashInput"
             
             if ($file.Length -gt $largeFileThreshholdBytes) {
                 if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
-                    $dataset.Remove([Dicom.DicomTag]::PixelData)
+                    $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
                 }
 
                 $dicomFile.Save($file.FullName)
 
-                Write-Host "Pixel Data stripped from large file $file."
+                Write-Host "    Pixel Data stripped from large file $file."
             }
             
             
