@@ -76,7 +76,8 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 # Basic globals
 ##################################################################################################################################
-$sleep                  = 0 # 3 # if greater than 0, script loops, sleeping $sleep seconds each time.
+$sleepSeconds                  = 0 # 3 # if greater than 0, script loops, sleeping $sleepSeconds seconds each time.
+$mtimeThreshholdSeconds = 3
 $scriptHomeDirPath      = $PSScriptRoot
 ##################################################################################################################################
 
@@ -165,11 +166,10 @@ do {
         ##########################################################################################################################
     }
 
-    if ($sleep -gt 0) {
-        Write-Host "Sleeping $($sleep) seconds..."
+    if ($sleepSeconds -gt 0) {
+        Write-Host "Sleeping $($sleepSeconds) seconds..."
+        Start-Sleep -Seconds $sleepSeconds 
     }
-    
-    Start-Sleep -Seconds $sleep 
     ##############################################################################################################################
-} while ($sleep -gt 0)#
+} while ($sleepSeconds -gt 0)#
 ##################################################################################################################################
