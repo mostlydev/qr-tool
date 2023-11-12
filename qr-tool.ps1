@@ -74,7 +74,7 @@ function Require-NuGetPackage {
 
 ##################################################################################################################################
 $scriptHome             = $PSScriptRoot
-$sleep                  = 0
+$sleep                  = 3 # if greater than 0, script loops, sleeping $sleep seconds each time.
 ##################################################################################################################################
 
 
@@ -107,48 +107,58 @@ Require-DirectoryExists -DirectoryPath $sentRequestsDirPath     -CreateIfNotExis
 ##################################################################################################################################
 
 
-##################################################################################################################################
-# Main
-##################################################################################################################################
-$filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
+do {
+    ##############################################################################################################################
+    # Main
+    ##############################################################################################################################
+    $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
-if ($filesInInbound.Count -eq 0) {
-    Write-Host "No DCM files found in inbound."
-} else {
-    $counter = 0
-    
-    Write-Host "Found $($filesInInbound.Count) files in inbound."
-    
-    foreach ($file in $filesInInbound) {
-        $counter++
+    if ($filesInInbound.Count -eq 0) {
+        Write-Host "No DCM files found in inbound."
+    } else {
+        $counter = 0
+        
+        Write-Host "Found $($filesInInbound.Count) files in inbound."
+        
+        ##########################################################################################################################
+        foreach ($file in $filesInInbound) {
+            $counter++
 
-        Write-Host "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
-        
-        $dicomFile = [Dicom.DicomFile]::Open($file.FullName)
-        $dataset = $dicomFile.Dataset
-        $patientName = $dataset.GetString([Dicom.DicomTag]::PatientName)
-        
-        Write-Host "Patient Name: $patientName"
-        
-        # if ($file.Length -gt 50000) {
-        #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
-        # }
-        # $dcmData = & dcmdump $file.FullName
-        # $patientName = ($dcmData | Select-String "0010,0010" | Out-String).Trim()
-        # $dob = ($dcmData | Select-String "0010,0030" | Out-String).Trim()
-        # $scanDate = ($dcmData | Select-String "0008,0020" | Out-String).Trim()
-        # $hashInput = $patientName + $dob + $scanDate
-        
-        # $hash = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
-        # $newPath = "$baseDirPath\queue\$hash.dcm"
-        
-        # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
-        #   Move-Item -Path $file.FullName -Destination $newPath
-        # }
-        # else {
-        #   Remove-Item -Path $file.FullName
-        # }
-        # $processedHashes[$hash] = $true
+            Write-Host "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
+            
+            $dicomFile = [Dicom.DicomFile]::Open($file.FullName)
+            $dataset = $dicomFile.Dataset
+            $patientName = $dataset.GetString([Dicom.DicomTag]::PatientName)
+            
+            Write-Host "Patient Name: $patientName"
+            
+            # if ($file.Length -gt 50000) {
+            #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
+            # }
+            # $dcmData = & dcmdump $file.FullName
+            # $patientName = ($dcmData | Select-String "0010,0010" | Out-String).Trim()
+            # $dob = ($dcmData | Select-String "0010,0030" | Out-String).Trim()
+            # $scanDate = ($dcmData | Select-String "0008,0020" | Out-String).Trim()
+            # $hashInput = $patientName + $dob + $scanDate
+            
+            # $hash = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
+            # $newPath = "$baseDirPath\queue\$hash.dcm"
+            
+            # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
+            #   Move-Item -Path $file.FullName -Destination $newPath
+            # }
+            # else {
+            #   Remove-Item -Path $file.FullName
+            # }
+            # $processedHashes[$hash] = $true
+        }
+        ##########################################################################################################################
     }
-}
 
+    if ($sleep -gt 0) {
+        Write-Host "Sleeping $($sleep) seconds..."
+    }
+    
+    Start-Sleep -Seconds $sleep 
+    ##############################################################################################################################
+} while ($sleep -gt 0)
