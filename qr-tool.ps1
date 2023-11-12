@@ -24,7 +24,6 @@ function Write-Indented {
     param (
         [Parameter(Mandatory = $true)]
         [string]$Message,
-
         [switch]$NoNewLine
     )
 
@@ -73,7 +72,7 @@ function Require-DirectoryExists {
             if (-Not (Test-Path -Path $DirectoryPath)) {
                 Throw "Failed to create directory at $DirectoryPath."
             } else {
-                Write-Indented " done."
+                Write-Host " done."
             }
         } else {
             Write-Indented "Found $DirectoryPath."
@@ -110,7 +109,7 @@ function Require-NuGetPackage {
             if (-Not (Test-Path -Path $ExpectedDllPath)) {
                 Throw "Failed to install $PackageName."
             } else {
-                Write-Indented " done."
+                Write-Host " done."
             }
         } else {
             Write-Indented "Found $ExpectedDllPath."
