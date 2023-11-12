@@ -85,10 +85,10 @@ $foDicomDirPath         = Join-Path -Path $packagesDirPath -ChildPath "$foDicomN
 $foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath  -ChildPath "lib\net45\Dicom.Core.dll"
 #=======================================================================================================================
 Require-NuGetPackage `
-    -PackageName $foDicomName `
-    -PackageVersion $foDicomVersion `
-    -ExpectedDllPath $foDicomExpectedDllPath `
-    -DestinationDir $packagesDirPath
+  -PackageName $foDicomName `
+  -PackageVersion $foDicomVersion `
+  -ExpectedDllPath $foDicomExpectedDllPath `
+  -DestinationDir $packagesDirPath
 $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 ########################################################################################################################
 
@@ -107,30 +107,37 @@ Require-DirectoryExists -DirectoryPath $requestsDirPath -CreateIfNotExists $true
 $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
 if ($filesInInbound.Count -eq 0) {
-  Write-Host "No DCM files found in the folder."
+    Write-Host "No DCM files found in the folder."
 }
 else {
     foreach ($file in $filesInInbound) {
         Write-Host "Processing $file..."
-    # if ($file.Length -gt 50000) {
-    #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
-    # }
-    # $dcmData = & dcmdump $file.FullName
-    # $patientName = ($dcmData | Select-String "0010,0010" | Out-String).Trim()
-    # $dob = ($dcmData | Select-String "0010,0030" | Out-String).Trim()
-    # $scanDate = ($dcmData | Select-String "0008,0020" | Out-String).Trim()
-    # $hashInput = $patientName + $dob + $scanDate
 
-    # $hash = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
-    # $newPath = "$baseDirPath\queue\$hash.dcm"
+        $dicomFile = [Dicom.DicomFile]::Open($file.FullName)
+        $dataset = $dicomFile.Dataset
+        $patientName = $dataset.GetString([Dicom.DicomTag]::PatientName)
 
-    # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
-    #   Move-Item -Path $file.FullName -Destination $newPath
-    # }
-    # else {
-    #   Remove-Item -Path $file.FullName
-    # }
-    # $processedHashes[$hash] = $true
-  }
+        Write-Host "Patient Name: $patientName"
+
+        # if ($file.Length -gt 50000) {
+        #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
+        # }
+        # $dcmData = & dcmdump $file.FullName
+        # $patientName = ($dcmData | Select-String "0010,0010" | Out-String).Trim()
+        # $dob = ($dcmData | Select-String "0010,0030" | Out-String).Trim()
+        # $scanDate = ($dcmData | Select-String "0008,0020" | Out-String).Trim()
+        # $hashInput = $patientName + $dob + $scanDate
+
+        # $hash = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
+        # $newPath = "$baseDirPath\queue\$hash.dcm"
+
+        # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
+        #   Move-Item -Path $file.FullName -Destination $newPath
+        # }
+        # else {
+        #   Remove-Item -Path $file.FullName
+        # }
+        # $processedHashes[$hash] = $true
+    }
 }
 
