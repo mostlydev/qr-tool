@@ -133,12 +133,14 @@ do {
 
             Write-Host "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
             
-            $dicomFile = [Dicom.DicomFile]::Open($file.FullName)
-            $dataset = $dicomFile.Dataset
-            $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
-
+            $dicomFile   = [Dicom.DicomFile]::Open($file.FullName)
+            $dataset     = $dicomFile.Dataset
+            $method      = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
             $patientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
+            $patiendDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
+            
             Write-Host "Patient Name: $patientName"
+            Write-Host "Patient DOB:  $patiendDob"
             
             # if ($file.Length -gt 50000) {
             #   & dcmodify -nb -ie -ea "(7fe0,0010)" $file.FullName
