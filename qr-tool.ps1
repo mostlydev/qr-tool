@@ -76,7 +76,7 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 # Basic globals
 ##################################################################################################################################
-$sleep                  = 3 # if greater than 0, script loops, sleeping $sleep seconds each time.
+$sleep                  = 0 # 3 # if greater than 0, script loops, sleeping $sleep seconds each time.
 $scriptHomeDirPath      = $PSScriptRoot
 ##################################################################################################################################
 
@@ -84,7 +84,7 @@ $sleep                  = 3 # if greater than 0, script loops, sleeping $sleep s
 ##################################################################################################################################
 # Set up packages
 ##################################################################################################################################
-$packagesDirPath        = Join-Path -Path $scriptHomeDirPath      -ChildPath "packages"
+$packagesDirPath        = Join-Path -Path $scriptHomeDirPath  -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
 $foDicomDirPath         = Join-Path -Path $packagesDirPath -ChildPath "$foDicomName.$foDicomVersion"
