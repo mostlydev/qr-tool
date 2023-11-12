@@ -1,14 +1,19 @@
-# PS D:\qr-tool> Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -Scope CurrentUser -Destination . -Force
+# PS D:\qr-tool> Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -Scope CurrentUser -Destination "packages" -Force
 # Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -RequiredVersion 4.0.8 -Scope CurrentUser -Destination . -Force
 
 ########################################################################################################################
 function Require-DirectoryExists {
     param(
-        [string]$DirectoryPath
+        [string]$DirectoryPath,
+        [bool]$CreateIfNotExists = $false
     )
 
     try {
         if (-Not (Test-Path -Path $DirectoryPath)) {
+            if (-Not $CreateIfNotExists) {
+                Throw "$DirectoryPath does not exist."
+            }
+            
             Write-Host "Didn't find $DirectoryPath, creating it..." -NoNewline
             $null = New-Item -ItemType Directory -Path $DirectoryPath
 
@@ -70,6 +75,9 @@ function Require-NuGetPackage {
 ########################################################################################################################
 $scriptHome             = $PSScriptRoot
 $packagesDirPath        = Join-Path -Path $scriptHome      -ChildPath "packages"
+$requestsDirPath        = Join-Path -Path $scriptHome      -ChildPath "requests"
+########################################################################################################################
+$queueDirPath           = Join-Path -Path $scriptHome      -ChildPath "queue"
 ########################################################################################################################
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
@@ -79,14 +87,16 @@ $foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath  -ChildPath "lib\net45
 
 
 ########################################################################################################################
-Require-DirectoryExists -DirectoryPath $packagesDirPath
-
-Write-Host "Script is at $scriptHome"
-Write-Host "Expect fo-dicom dir at $foDicomDirPath"
-Write-Host "Expect fo-dicom DLL at $foDicomExpectedDllPath"
+Require-DirectoryExists -DirectoryPath $packagesDirPath -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $requestsDirPath -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $queueDirPath
 
 Require-NuGetPackage `
     -PackageName $foDicomName `
     -PackageVersion $foDicomVersion `
     -ExpectedDllPath $foDicomExpectedDllPath `
     -DestinationDir $packagesDirPath
+
+$null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
+
+
