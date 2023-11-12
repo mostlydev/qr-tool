@@ -76,7 +76,7 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 # Basic globals
 ##################################################################################################################################
-$sleepSeconds                  = 0 # 3 # if greater than 0, script loops, sleeping $sleepSeconds seconds each time.
+$sleepSeconds           = 0 # 3 # if greater than 0, script loops, sleeping $sleepSeconds seconds each time.
 $mtimeThreshholdSeconds = 3
 $scriptHomeDirPath      = $PSScriptRoot
 ##################################################################################################################################
@@ -134,6 +134,14 @@ do {
 
             Write-Host "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
             
+            $lastWriteTime = $file.LastWriteTime
+            $timeDiff      = (Get-Date) - $lastWriteTime
+
+            if ($timeDiff.TotalSeconds -lt $mtimeThresholdSeconds) {
+                Write-Host "$($file.Name) is too new, skipping for now."
+                continue
+            }
+
             $dicomFile   = [Dicom.DicomFile]::Open($file.FullName)
             $dataset     = $dicomFile.Dataset
             $method      = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
