@@ -1,5 +1,4 @@
 cache/*
-!cache/incoming-stored-items/
 !cache/incoming-stored-items/.dummy-file
 packages/*
 .DS_Store

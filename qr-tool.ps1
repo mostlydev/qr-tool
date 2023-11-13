@@ -1,3 +1,11 @@
+$global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets\bin\Release\FoDicomCmdlets.dll"
+
+Import-Module $global:foDicomCmdletsDLLPath
+
+Move-StudyByStudyInstanceUID
+
+Exit
+
 ######################################################################################################################################################
 # Include required function libs:
 ######################################################################################################################################################
