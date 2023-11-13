@@ -151,6 +151,27 @@ function Require-NuGetPackage {
 
 
 ##################################################################################################################################
+function StripPixelDataFromLargeFile {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File
+    )
+
+    if ($File.Length -gt $global:largeFileThreshholdBytes) {
+        $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
+        $dataset = $dicomFile.Dataset
+
+        if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
+            $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
+            $dicomFile.Save($File.FullName)
+            Write-Indented "Pixel Data stripped from large file $($File.Name)."
+        }
+    }
+}
+##################################################################################################################################
+
+
+##################################################################################################################################
 # Set up packages
 ##################################################################################################################################
 $packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "packages"
@@ -221,16 +242,8 @@ do {
 
             Write-Indented "Hash Input:   $hashInput"
             
-            # if ($file.Length -gt $global:largeFileThreshholdBytes) {
-            #     if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
-            #         $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
-            #     }
+            StripPixelDataFromLargeFile -File $file
 
-            #     $dicomFile.Save($file.FullName)
-
-            #     Write-Indented "Pixel Data stripped from large file $file."
-            # }
-            
             $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
 
             Write-Indented "Hash Output:  $hashOutput"
