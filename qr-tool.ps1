@@ -15,6 +15,7 @@ $global:qrServerHost             = "HOROS"
 $global:qrServerPort             = 11112
 $global:qrServerCalledAE         = "CPULTRA1"
 $global:qrDestAE                 = "FLUXTEST1AB"
+$global:myAE                     = "QR-TOOL"
 ##################################################################################################################################
 
 
@@ -382,6 +383,8 @@ do {
             Write-Indented "StudyUID:     $($tags.StudyUID)"
 
             $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $tags.StudyUID)
+            $client  = New-Object Dicom.Network.Client.DicomClient(
+                $global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)
             
             Outdent
         }
