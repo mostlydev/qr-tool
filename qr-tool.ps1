@@ -1,7 +1,3 @@
-# PS D:\qr-tool> Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -Scope CurrentUser -Destination "packages" -Force
-# Install-Package -Name fo-dicom.Desktop -ProviderName NuGet -RequiredVersion 4.0.8 -Scope CurrentUser -Destination . -Force
-
-
 ##################################################################################################################################
 # Configurable globals
 ##################################################################################################################################
