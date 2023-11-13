@@ -160,7 +160,7 @@ function File-IsTooFresh {
 
         Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
 
-        Move-Item -Path $file.FullName -Destination $rejectedPath
+        StripPixelDataFromLargeFileAndMoveTo -File $file -Destination $rejectedPath
     }
 }
 ##################################################################################################################################
@@ -193,10 +193,12 @@ function File-IsTooFresh {
 
 
 ##################################################################################################################################
-function StripPixelDataFromLargeFile {
+function StripPixelDataFromLargeFileAndMoveTo {
     param (
         [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$File
+        [System.IO.FileInfo]$File,
+        [Parameter(Mandatory = $true)]
+        [string]$Destination
     )
 
     if ($File.Length -gt $global:largeFileThreshholdBytes) {
@@ -209,6 +211,8 @@ function StripPixelDataFromLargeFile {
             Write-Indented "Pixel Data stripped from large file $($File.Name)."
         }
     }
+    
+    Move-Item -Path $File.FullName -Destination $Destination
 }
 ##################################################################################################################################
 
@@ -279,8 +283,6 @@ do {
                 continue
             }
 
-            StripPixelDataFromLargeFile -File $file
-
             $tags = Extract-Tags -File $file
 
             Write-Indented "Patient Name: $($tags.PatientName)"
@@ -316,7 +318,7 @@ do {
             if ($null -eq $foundFile) {                
                 Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedpath."
 
-                Move-Item -Path $file.FullName -Destination $possibleQueuedPath
+                StripPixelDataFromLargeFile -File $file -Destination $possibleQueuedPath
             } else {
                 Write-Indented "Item for hash $hashOutput already exists in one of our directories as $foundFile, rejecting."
                 
