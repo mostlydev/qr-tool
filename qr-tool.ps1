@@ -211,9 +211,9 @@ function File-IsTooFresh {
 
 
 ##################################################################################################################################
-# StripPixelDataFromLargeFileAndMoveTo-Path
+# MaybeStripPixelDataAndThenMoveTo-Path 
 ##################################################################################################################################
-function StripPixelDataFromLargeFileAndMoveTo-Path {
+function MaybeStripPixelDataAndThenMoveTo-Path {
     param (
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]$File,
