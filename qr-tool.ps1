@@ -45,19 +45,19 @@ Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -Crea
 ######################################################################################################################################################
 # Set up packages (well, just fo-dicom presently):
 ######################################################################################################################################################
-$packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
-$foDicomName            = "fo-dicom.Desktop"
-$foDicomVersion         = "4.0.8"
-$foDicomDirPath         = Join-Path -Path $packagesDirPath          -ChildPath "$foDicomName.$foDicomVersion"
-$foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath           -ChildPath "lib\net45\Dicom.Core.dll"
+$global:packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
+$global:foDicomName            = "fo-dicom.Desktop"
+$global:foDicomVersion         = "4.0.8"
+$global:foDicomDirPath         = Join-Path -Path $global:packagesDirPath          -ChildPath "$global:foDicomName.$global:foDicomVersion"
+$global:foDicomExpectedDllPath = Join-Path -Path $global:foDicomDirPath           -ChildPath "lib\net45\Dicom.Core.dll"
 #=====================================================================================================================================================
 Require-NuGetPackage `
--PackageName $foDicomName `
--PackageVersion $foDicomVersion `
--ExpectedDllPath $foDicomExpectedDllPath `
--DestinationDir $packagesDirPath
+-PackageName $global:foDicomName `
+-PackageVersion $global:foDicomVersion `
+-ExpectedDllPath $global:foDicomExpectedDllPath `
+-DestinationDir $global:packagesDirPath
 #=====================================================================================================================================================
-$null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
+$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
 ######################################################################################################################################################
 
 
