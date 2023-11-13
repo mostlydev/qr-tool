@@ -83,7 +83,7 @@ function Require-DirectoryExists {
 
 
 #################################################################################################################################################
-# Require-NuGetPackage
+# Require-NuGetPackage: this is not currently used since we now share a fo-dicom DLL with FoDicomCmdlet, but could be useful in the future?
 #################################################################################################################################################
 function Require-NuGetPackage {
     param (
