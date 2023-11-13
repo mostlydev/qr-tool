@@ -390,31 +390,6 @@ do {
             $task = $client.SendAsync()
             $task.Wait()
 
-            $moveSuccessfully = $null
-
-            foreach ($response in $request.Responses) {
-                Write-Host "Response: "
-                if ($response.Status.State -eq [Dicom.Network.DicomState]::Pending) {
-                    Write-Host "Sending is in progress. Please wait: $($response.Remaining)"
-                } elseif ($response.Status.State -eq [Dicom.Network.DicomState]::Success) {
-                    Write-Host "Sending successfully finished"
-                    $moveSuccessfully = $true
-                } elseif ($response.Status.State -eq [Dicom.Network.DicomState]::Failure) {
-                    Write-Host "Error sending datasets: $($response.Status.Description)"
-                    $moveSuccessfully = $false
-                }
-
-                Write-Host "Response status: $($response.Status)"
-            }
-
-            if ($moveSuccessfully -eq $null) {
-                Write-Host "moveSuccessfully is still null."
-            } elseif ($moveSuccessfully -eq $true) {
-                Write-Host "Images sent successfully."
-            } elseif ($moveSuccessfully -eq $false) {
-                Write-Host "Images were NOT sent successfully."
-            }
-
             $sentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath $file.Name
 
             Write-Indented "Moving $($file.FullName) to $sentRequestPath"
