@@ -262,13 +262,11 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 ##################################################################################################################################
 $inboundDirPath          = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "inbound"
 $queuedDirPath           = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "queued"
-$outboundRequestsDirPath = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "outbound-requests"
 $sentRequestsDirPath     = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "sent-requests"
 $rejectedDirPath         = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "rejected"
 #=================================================================================================================================
 Require-DirectoryExists -DirectoryPath $inboundDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedDirPath           -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $outboundRequestsDirPath -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $sentRequestsDirPath     -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExists $true
 ##################################################################################################################################
@@ -279,7 +277,7 @@ Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExis
 ##################################################################################################################################
 do {
     ##############################################################################################################################
-    # Pass #1/3: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
+    # Pass #1/2: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
     ##############################################################################################################################
     
     $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
@@ -321,19 +319,15 @@ do {
             Write-Indented "Hash Output:  $hashOutput"
 
             $possibleQueuedPath          = Join-Path -Path $queuedDirPath           -ChildPath "$hashOutput.dcm"
-            $possibleOutboundRequestPath = Join-Path -Path $outboundRequestsDirPath -ChildPath "$hashOutput.dcm"
             $possibleSentRequestPath     = Join-Path -Path $sentRequestsDirPath     -ChildPath "$hashOutput.dcm"
 
             # Write-Indented "Queued Path:           $possibleQueuedPath"
-            # Write-Indented "Outbound Request Path: $possibleOutboundRequestPath"
             # Write-Indented "Sent Request Path:     $possibleSentRequestPath"
             
             $foundFile = $null
 
             if (Test-Path -Path $possibleQueuedPath) {
                 $foundFile = $possibleQueuedPath
-            } elseif (Test-Path -Path $possibleOutboundRequestPath) {
-                $foundFile = $possibleOutboundRequestPath
             } elseif (Test-Path -Path $possibleSentRequestPath) {
                 $foundFile = $possibleSentRequestPath
             }
@@ -354,13 +348,7 @@ do {
     }
 
     ##############################################################################################################################
-    # Pass #2/3: Examine files in $queuedDirPath, generate move requests for them in $outboundRequestsPath and then delete them.
-    ##############################################################################################################################
-
-    # TODO
-    
-    ##############################################################################################################################
-    # Pass #2/3: Examine files in $outboundRequestsDirPath, issue the move requests and then move them to $sentRequestsPath.
+    # Pass #2/2: Examine files in $queuedDirPath, issue move requests for them and then move them to $sentRequestsPath.
     ##############################################################################################################################
 
     # TODO
