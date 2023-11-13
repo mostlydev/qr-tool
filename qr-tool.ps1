@@ -27,7 +27,7 @@ $global:myAE                     = "QR-TOOL"
 #################################################################################################################################################
 # Require some directories:
 #################################################################################################################################################
-$cacheDirBasePath            = $PSScriptRoot
+$cacheDirBasePath            = Join-Path -Path $PSScriptRoot     -ChildPath "cache"
 $incomingStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "incoming-stored-items"
 $queuedStoredItemsDirPath    = Join-Path -Path $cacheDirBasePath -ChildPath "queued-stored-items"
 $processedStoredItemsDirPath = Join-Path -Path $cacheDirBasePath -ChildPath "processed-stored-items"
