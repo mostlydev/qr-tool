@@ -8,6 +8,14 @@ Import-Module $global:foDicomCmdletsDLLPath
 
 
 ######################################################################################################################################################
+# Set up packages (well, just fo-dicom presently, shared with FoDicomCmdlets):
+######################################################################################################################################################
+$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/bin/Release/Dicom.Core.dll"
+$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
+######################################################################################################################################################
+
+
+######################################################################################################################################################
 # Include required function libs:
 ######################################################################################################################################################
 # These included files depend on each other and on globals defined here, so removing any of them is likely to cause problems: they are just being
@@ -49,14 +57,6 @@ Require-DirectoryExists -DirectoryPath $global:incomingStoredItemsDirPath  # if 
 Require-DirectoryExists -DirectoryPath $global:queuedStoredItemsDirPath    -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:processedStoredItemsDirPath -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -CreateIfNotExists $true
-######################################################################################################################################################
-
-
-######################################################################################################################################################
-# Set up packages (well, just fo-dicom presently):
-######################################################################################################################################################
-$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/packages/fo-dicom.Desktop.4.0.8/lib/net45/Dicom.Core.dll"
-$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
 ######################################################################################################################################################
 
 
