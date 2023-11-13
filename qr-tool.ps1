@@ -338,7 +338,7 @@ do {
                 $foundFile = $possibleSentRequestPath
             }
 
-            if ($null -eq $foundFile) {                
+            if ($foundFile -eq $null) {                
                 Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedpath."
 
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedPath
