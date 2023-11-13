@@ -163,13 +163,8 @@ do {
 
             WriteStudyTags-Indented -StudyTags $tags
             # Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
-            Move-StudyByStudyInstanceUIDSync `
-              -StudyInstanceUID $tags.StudyInstanceUID `
-              -DestinationAE    $global:qrDestinationAE `
-              -ServerHost       $global:qrServerHost `
-              -ServerPort       $global:qrServerPort `
-              -ServerAE         $global:qrServerAE `
-              -MyAE             $global:myAE
+            
+            $moveResponses = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
             
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 

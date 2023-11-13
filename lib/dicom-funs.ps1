@@ -110,13 +110,17 @@ function Move-StudyByStudyInstanceUID {
 
     Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
     
-    $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $StudyInstanceUID)
-    $client  = New-Object Dicom.Network.Client.DicomClient($global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)    
-    $null    = $client.AddRequestAsync($request).GetAwaiter().GetResult()    
-    $task    = $client.SendAsync()
-    
-    $task.Wait()
+    $responses = Move-StudyByStudyInstanceUIDSync `
+      -StudyInstanceUID $StudyInstanceUID `
+      -DestinationAE    $global:qrDestinationAE `
+      -ServerHost       $global:qrServerHost `
+      -ServerPort       $global:qrServerPort `
+      -ServerAE         $global:qrServerAE `
+      -MyAE             $global:myAE
+            
 
     Write-Host " done."
+
+    return $responses
 }
 #################################################################################################################################################
