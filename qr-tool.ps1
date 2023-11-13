@@ -6,9 +6,6 @@ $global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDico
 Import-Module $global:foDicomCmdletsDLLPath
 ######################################################################################################################################################
 
-Move-StudyByStudyInstanceUIDSync
-
-Exit
 
 ######################################################################################################################################################
 # Include required function libs:
@@ -33,7 +30,7 @@ $global:myAE                     = "QR-TOOL"
 $global:qrServerAE               = "HOROS"
 $global:qrServerHost             = "localhost"
 $global:qrServerPort             = 2763
-$global:qrDestAE                 = "FLUXTEST1AB"
+$global:qrDestinationAE          = "FLUXTEST1AB"
 ######################################################################################################################################################
 
 
@@ -165,7 +162,16 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-            Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
+            # Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
+            Move-StudyByStudyInstanceUIDSync `
+              -StudyInstanceUID $tags.StudyInstanceUID `
+              -DestinationAE    $global:qrDestinationAE `
+              -ServerHost       $global:qrServerHost `
+              -ServerPort       $global:qrServerPort `
+              -ServerAE         $global:qrServerAE
+              -MyAE             $global:myAE `
+            
+
             
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
