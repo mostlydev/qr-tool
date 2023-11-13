@@ -14,7 +14,7 @@ $global:qrServerAE               = "HOROS"
 $global:qrServerHost             = "HOROS"
 $global:qrServerPort             = 11112
 $global:qrServerCalledAE         = "CPULTRA1"
-$global:qrServerDestAE           = "FLUXTEST1AB"
+$global:qrDestAE                 = "FLUXTEST1AB"
 ##################################################################################################################################
 
 
@@ -372,6 +372,16 @@ do {
             Write-Indented "Processing file #$counter/$($filesInQueuedDir.Count) '$($file.Name)'..."
             
             Indent
+            
+            $tags = Extract-Tags -File $file
+
+            Write-Indented "Patient Name: $($tags.PatientName)"
+            Write-Indented "Patient DOB:  $($tags.PatientDob)"
+            Write-Indented "Study Date:   $($tags.StudyDate)"
+            Write-Indented "Modality:     $($tags.Modality)"
+            Write-Indented "StudyUID:     $($tags.StudyUID)"
+
+            $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $tags.StudyUID)
             
             Outdent
         }
