@@ -11,9 +11,8 @@ $global:largeFileThreshholdBytes = 50000
 $global:rejectByDeleting         = $true
 #=================================================================================================================================
 $global:qrServerAE               = "HOROS"
-$global:qrServerHost             = "HOROS"
-$global:qrServerPort             = 11112
-$global:qrServerCalledAE         = "CPULTRA1"
+$global:qrServerHost             = "localhost"
+$global:qrServerPort             = 2763
 $global:qrDestAE                 = "FLUXTEST1AB"
 $global:myAE                     = "QR-TOOL"
 ##################################################################################################################################
@@ -159,7 +158,7 @@ function File-IsTooFresh {
     if ($result) {
         Write-Indented "$($file.Name) is too fresh."
     }
-                
+    
     return $result
 }
 ##################################################################################################################################
@@ -386,6 +385,37 @@ do {
             $client  = New-Object Dicom.Network.Client.DicomClient(
                 $global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)
             
+            # Define a script block to handle the response
+            $responseHandler = {
+                param($sender, $eventArgs)
+
+                $response = $eventArgs.Response
+                if ($response.Status.State -eq [Dicom.Network.DicomState]::Pending) {
+                    Write-Host "Sending is in progress. Please wait: $($response.Remaining)"
+                } elseif ($response.Status.State -eq [Dicom.Network.DicomState]::Success) {
+                    Write-Host "Sending successfully finished"
+                    $script:moveSuccessfully = $true
+                } elseif ($response.Status.State -eq [Dicom.Network.DicomState]::Failure) {
+                    Write-Host "Error sending datasets: $($response.Status.Description)"
+                    $script:moveSuccessfully = $false
+                }
+                Write-Host "Response status: $($response.Status)"
+            }
+
+            # Add the event handler to the request
+            Register-ObjectEvent -InputObject $request -EventName "OnResponseReceived" -Action $responseHandler
+
+            # Add the request and send it
+            $client.AddRequestAsync($request).GetAwaiter().GetResult()
+            $client.SendAsync().GetAwaiter().GetResult()
+
+            # Check the result
+            if ($script:moveSuccessfully -eq $true) {
+                Write-Host "Images sent successfully"
+            } elseif ($script:moveSuccessfully -eq $false) {
+                Write-Host "Images were NOT sent successfully"
+            }
+
             Outdent
         }
     }
