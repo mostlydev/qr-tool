@@ -204,11 +204,11 @@ function File-IsTooFresh {
     $studyUID    = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
     $result = New-Object PSObject -Property @{
-        PatientName = $patientName
-        PatientDob  = $patientDob
-        StudyDate   = $studyDate
-        Modality    = $modality
-        StudyInstanceUID    = $studyUID
+        PatientName      = $patientName
+        PatientDob       = $patientDob
+        StudyDate        = $studyDate
+        Modality         = $modality
+        StudyInstanceUID = $studyUID
     }
 
     return $result
@@ -379,16 +379,16 @@ do {
 
             WriteIndented-StudyTags -StudyTags $tags
             
-            $hashOutput                    = GetHashFrom-StudyTags -StudyTags $tags 
-            $possibleQueuedStoredItemsPath = Join-Path -Path $queuedStoredItemsDirPath    -ChildPath "$hashOutput.dcm"
-            $possibleSentRequestPath       = Join-Path -Path $processedStoredItemsDirPath -ChildPath "$hashOutput.dcm"
+            $studyHash                        = GetHashFrom-StudyTags -StudyTags $tags 
+            $possibleQueuedStoredItemsPath    = Join-Path -Path $queuedStoredItemsDirPath    -ChildPath "$studyHash.dcm"
+            $possibleProcessedStoredItemsPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath "$studyHash.dcm"
 
             $foundFile = $null
 
             if (Test-Path -Path $possibleQueuedStoredItemsPath) {
                 $foundFile = $possibleQueuedStoredItemsPath
-            } elseif (Test-Path -Path $possibleSentRequestPath) {
-                $foundFile = $possibleSentRequestPath
+            } elseif (Test-Path -Path $possibleProcessedStoredItemsPath) {
+                $foundFile = $possibleProcessedStoredItemsPath
             }
 
             if ($foundFile -eq $null) {                
@@ -396,7 +396,7 @@ do {
 
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
             } else {
-                Write-Indented "Item for hash $hashOutput already exists in one of our directories as $foundFile, rejecting."
+                Write-Indented "Item for hash $studyHash already exists in one of our directories as $foundFile, rejecting."
                 
                 Reject-File -File $file
             }
@@ -437,11 +437,11 @@ do {
             
             MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
             
-            $sentRequestPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath $file.Name
+            $processedStoredItemPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath $file.Name
 
-            Write-Indented "Moving $($file.FullName) to $sentRequestPath"
+            Write-Indented "Moving $($file.FullName) to $processedStoredItemPath"
 
-            Move-Item -Path $File.FullName -Destination $sentRequestPath
+            Move-Item -Path $File.FullName -Destination $processedStoredItemPath
             
             Outdent
         } # foreach $file
