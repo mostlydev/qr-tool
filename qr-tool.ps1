@@ -358,6 +358,8 @@ do {
         $counter = 0
         
         Write-Indented "Pass #1: Found $($filesInIncomingStoredItemsDir.Count) files in incomingStoredItems."
+
+        Indent
         
         foreach ($file in $filesInIncomingStoredItemsDir) {
             $counter++
@@ -377,9 +379,9 @@ do {
 
             WriteIndented-StudyTags -StudyTags $tags
             
-            $hashOutput              = GetHashFrom-StudyTags -StudyTags $tags 
-            $possibleQueuedStoredItemsPath      = Join-Path -Path $queuedStoredItemsDirPath       -ChildPath "$hashOutput.dcm"
-            $possibleSentRequestPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath "$hashOutput.dcm"
+            $hashOutput                    = GetHashFrom-StudyTags -StudyTags $tags 
+            $possibleQueuedStoredItemsPath = Join-Path -Path $queuedStoredItemsDirPath    -ChildPath "$hashOutput.dcm"
+            $possibleSentRequestPath       = Join-Path -Path $processedStoredItemsDirPath -ChildPath "$hashOutput.dcm"
 
             $foundFile = $null
 
@@ -400,9 +402,12 @@ do {
             }
             
             Outdent
-        }
+        } # foreach $file
         #########################################################################################################################################
-    }
+
+        Outdent
+    } # Pass #1/2
+    #############################################################################################################################################
 
     #############################################################################################################################################
     # Pass #2/2: Examine files in $queuedStoredItemsDirPath, issue move requests for them and then move them to $processedStoredItemsPath.
@@ -416,6 +421,8 @@ do {
         $counter = 0
         
         Write-Indented "Pass #2: Found $($filesInQueuedStoredItemsDir.Count) files in queuedStoredItems."
+
+        Indent
         
         foreach ($file in $filesInQueuedStoredItemsDir) {
             $counter++
@@ -437,8 +444,12 @@ do {
             Move-Item -Path $File.FullName -Destination $sentRequestPath
             
             Outdent
-        }
-    }
+        } # foreach $file
+        #####################################################################################################################################
+        
+        Outdent
+    } # Pass #2/2
+    #############################################################################################################################################
     
     #############################################################################################################################################
     # All passes complete, maybe sleep and loop, otherwise fall through and exit.
