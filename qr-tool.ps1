@@ -5,7 +5,7 @@
 ##################################################################################################################################
 # Configurable globals
 ##################################################################################################################################
-$global:sleepSeconds             = 0 # 3 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
+$global:sleepSeconds             = 0 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
 $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
 $global:rejectByDeleting         = $true
