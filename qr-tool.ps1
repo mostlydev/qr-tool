@@ -281,7 +281,7 @@ Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExis
 ##################################################################################################################################
 do {
     ##############################################################################################################################
-    # Pass #1/2: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
+    # Pass #1/2: Examine files in $inboundDirPath and either accept them by moving them to $queuedDirPath or reject them.
     ##############################################################################################################################
     
     $filesInInboundDir = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
