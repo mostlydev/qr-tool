@@ -217,6 +217,47 @@ function File-IsTooFresh {
 
 
 #################################################################################################################################################
+# GetHashFrom-StudyTags
+#################################################################################################################################################
+function GetHashFrom-StudyTags {
+    param (
+        [Parameter(Mandatory = $true)]
+        [PSObject]$StudyTags
+    )
+
+    $hashInput = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
+
+    Write-Indented "Hash Input: $hashInput"
+
+    $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
+    $hashBytes = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
+    $hashOutput = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
+    
+    Write-Indented "Hash Output: $hashOutput"
+
+    return $hashOutput
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
+# WriteIndented-StudyTags
+#################################################################################################################################################
+function WriteIndented-StudyTags {
+    param (
+        [Parameter(Mandatory = $true)]
+        [PSObject]$StudyTags)
+   
+    Write-Indented "Patient Name:     $($StudyTags.PatientName)"
+    Write-Indented "Patient DOB:      $($StudyTags.PatientDob)"
+    Write-Indented "Study Date:       $($StudyTags.StudyDate)"
+    Write-Indented "Modality:         $($StudyTags.Modality)"
+    Write-Indented "StudyInstanceUID: $($StudyTags.StudyInstanceUID)"
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
 # MoveStudyBy-StudyInstanceUID: THIS NEEDS TO BECOME A Cmdlet THAT HAS A SENSIBLE RETURN VALUE!
 #################################################################################################################################################
 function MoveStudyBy-StudyInstanceUID {
@@ -237,30 +278,6 @@ function MoveStudyBy-StudyInstanceUID {
     $task.Wait()
 
     Write-Host " done."
-}
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# GetHashFrom-StudyTags
-#################################################################################################################################################
-function GetHashFrom-StudyTags {
-    param (
-        [Parameter(Mandatory = $true)]
-        [PSObject]$StudyTags
-    )
-
-    $hashInput = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
-
-    Write-Indented "Hash Input: $hashInput"
-
-    $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
-    $hashBytes = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
-    $hashOutput = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
-    
-    Write-Indented "Hash Output: $hashOutput"
-
-    return $hashOutput
 }
 #################################################################################################################################################
 
@@ -358,12 +375,8 @@ do {
 
             $tags = Extract-StudyTags -File $file
 
-            Write-Indented "Patient Name: $($tags.PatientName)"
-            Write-Indented "Patient DOB:  $($tags.PatientDob)"
-            Write-Indented "Study Date:   $($tags.StudyDate)"
-            Write-Indented "Modality:     $($tags.Modality)"
-            Write-Indented "StudyInstanceUID:     $($tags.StudyInstanceUID)"
-
+            WriteIndented-StudyTags -StudyTags $tags
+            
             $hashOutput              = GetHashFrom-StudyTags -StudyTags $tags 
             $possibleQueuedPath      = Join-Path -Path $queuedDirPath       -ChildPath "$hashOutput.dcm"
             $possibleSentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath "$hashOutput.dcm"
@@ -413,12 +426,8 @@ do {
             
             $tags = Extract-StudyTags -File $file
 
-            Write-Indented "Patient Name:     $($tags.PatientName)"
-            Write-Indented "Patient DOB:      $($tags.PatientDob)"
-            Write-Indented "Study Date:       $($tags.StudyDate)"
-            Write-Indented "Modality:         $($tags.Modality)"
-            Write-Indented "StudyInstanceUID: $($tags.StudyInstanceUID)"
-
+            WriteIndented-StudyTags -StudyTags $tags
+            
             MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
             
             $sentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath $file.Name
