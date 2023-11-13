@@ -127,6 +127,27 @@ function Require-NuGetPackage {
 
 
 ##################################################################################################################################
+function Reject-File {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File
+    )
+    if ($global:rejectByDeleting) {
+        Write-Indented "Deleting $($file.FullName)"
+        
+        Remove-Item -Path $file.FullName
+    }
+    else {
+        $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $file.Name
+
+        Write-Indented "Moving $($file.FullName) to $rejectedPath"
+
+        Move-Item -Path $file.FullName -Destination $rejectedPath
+    }
+}
+##################################################################################################################################
+    
+##################################################################################################################################
 function ExtractTags {
     param (
         [Parameter(Mandatory = $true)]
@@ -270,8 +291,9 @@ do {
 
                 Move-Item -Path $file.FullName -Destination $possibleQueuedPath
             } else {
-                Write-Indented "File already exists in one of the directories. Deleting source file."
-                Remove-Item -Path $file.FullName
+                Write-Indented "File already exists in one of the directories, rejecting."
+                
+                Reject-File -File $file
             }
             
             Outdent
