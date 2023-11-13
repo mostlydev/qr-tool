@@ -300,7 +300,7 @@ do {
         foreach ($file in $filesInInboundDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInInboundDir.Count) '$($file.Name)'..."
+            Write-Indented "Processing file #$counter/$($filesInInboundDir.Count) '$($file.FullName)'..."
             
             Indent
             
@@ -327,8 +327,8 @@ do {
 
             Write-Indented "Hash Output:  $hashOutput"
 
-            $possibleQueuedPath      = Join-Path -Path $queuedDirPath           -ChildPath "$hashOutput.dcm"
-            $possibleSentRequestPath = Join-Path -Path $sentRequestsDirPath     -ChildPath "$hashOutput.dcm"
+            $possibleQueuedPath      = Join-Path -Path $queuedDirPath       -ChildPath "$hashOutput.dcm"
+            $possibleSentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath "$hashOutput.dcm"
 
             $foundFile = $null
 
@@ -369,7 +369,7 @@ do {
         foreach ($file in $filesInQueuedDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInQueuedDir.Count) '$($file.Name)'..."
+            Write-Indented "Processing file #$counter/$($filesInQueuedDir.Count) '$($file.FullName)'..."
             
             Indent
             
@@ -385,37 +385,42 @@ do {
             $client  = New-Object Dicom.Network.Client.DicomClient(
                 $global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)
             
-            # Define a script block to handle the response
-            $responseHandler = {
-                param($sender, $eventArgs)
+            $null = $client.AddRequestAsync($request).GetAwaiter().GetResult()
 
-                $response = $eventArgs.Response
+            $task = $client.SendAsync()
+            $task.Wait()
+
+            $moveSuccessfully = $null
+
+            foreach ($response in $request.Responses) {
+                Write-Host "Response: "
                 if ($response.Status.State -eq [Dicom.Network.DicomState]::Pending) {
                     Write-Host "Sending is in progress. Please wait: $($response.Remaining)"
                 } elseif ($response.Status.State -eq [Dicom.Network.DicomState]::Success) {
                     Write-Host "Sending successfully finished"
-                    $script:moveSuccessfully = $true
+                    $moveSuccessfully = $true
                 } elseif ($response.Status.State -eq [Dicom.Network.DicomState]::Failure) {
                     Write-Host "Error sending datasets: $($response.Status.Description)"
-                    $script:moveSuccessfully = $false
+                    $moveSuccessfully = $false
                 }
+
                 Write-Host "Response status: $($response.Status)"
             }
 
-            # Add the event handler to the request
-            Register-ObjectEvent -InputObject $request -EventName "OnResponseReceived" -Action $responseHandler
-
-            # Add the request and send it
-            $client.AddRequestAsync($request).GetAwaiter().GetResult()
-            $client.SendAsync().GetAwaiter().GetResult()
-
-            # Check the result
-            if ($script:moveSuccessfully -eq $true) {
-                Write-Host "Images sent successfully"
-            } elseif ($script:moveSuccessfully -eq $false) {
-                Write-Host "Images were NOT sent successfully"
+            if ($moveSuccessfully -eq $null) {
+                Write-Host "moveSuccessfully is still null."
+            } elseif ($moveSuccessfully -eq $true) {
+                Write-Host "Images sent successfully."
+            } elseif ($moveSuccessfully -eq $false) {
+                Write-Host "Images were NOT sent successfully."
             }
 
+            $sentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath $file.Name
+
+            Write-Indented "Moving $($file.FullName) to $sentRequestPath"
+
+            Move-Item -Path $File.FullName -Destination $sentRequestPath
+            
             Outdent
         }
     }
@@ -431,3 +436,4 @@ do {
     ##############################################################################################################################
 } while ($global:sleepSeconds -gt 0)#
 ##################################################################################################################################
+Write-Indented "Done."
