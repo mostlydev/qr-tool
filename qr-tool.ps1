@@ -112,6 +112,7 @@ function Require-NuGetPackage {
     try {        
         if (-Not (Test-Path -Path $ExpectedDllPath)) {
             Write-Indented "Didn't find $ExpectedDllPath, installing $PackageName..." -NoNewline
+
             $null = Install-Package `
             -Name            $PackageName `
             -ProviderName    NuGet `
@@ -169,15 +170,13 @@ function File-IsTooFresh {
         [System.IO.FileInfo]$File
     )
     if ($global:rejectByDeleting) {
-        Write-Indented "Rejecting $($file.FullName) by deleting it."
-        
+        Write-Indented "Rejecting $($file.FullName) by deleting it."        
         Remove-Item -Path $file.FullName
     }
     else {
         $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $file.Name
 
         Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
-
         StripPixelDataFromLargeFileAndMoveTo-Path -File $file -Destination $rejectedPath
     }
 }
@@ -203,7 +202,7 @@ function File-IsTooFresh {
     $modality    = $method.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
     $studyUID    = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
-    $result = New-Object PSObject -Property @{
+    $result      = New-Object PSObject -Property @{
         PatientName      = $patientName
         PatientDob       = $patientDob
         StudyDate        = $studyDate
@@ -225,13 +224,13 @@ function GetHashFrom-StudyTags {
         [PSObject]$StudyTags
     )
 
-    $hashInput = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
+    $hashInput     = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
 
     Write-Indented "Hash Input: $hashInput"
 
     $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
-    $hashBytes = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
-    $hashOutput = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
+    $hashBytes     = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
+    $hashOutput    = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
     
     Write-Indented "Hash Output: $hashOutput"
 
@@ -269,12 +268,10 @@ function MoveStudyBy-StudyInstanceUID {
     Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
     
     $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $StudyInstanceUID)
-    $client  = New-Object Dicom.Network.Client.DicomClient(
-        $global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)
+    $client  = New-Object Dicom.Network.Client.DicomClient($global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)    
+    $null    = $client.AddRequestAsync($request).GetAwaiter().GetResult()    
+    $task    = $client.SendAsync()
     
-    $null = $client.AddRequestAsync($request).GetAwaiter().GetResult()
-    
-    $task = $client.SendAsync()
     $task.Wait()
 
     Write-Host " done."
@@ -299,6 +296,7 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
 
         if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
             $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
+            
             $dicomFile.Save($File.FullName)
             Write-Indented "Pixel Data stripped from large file $($File.Name)."
         }
@@ -312,11 +310,11 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
 #################################################################################################################################################
 # Set up packages
 #################################################################################################################################################
-$packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath   -ChildPath "packages"
+$packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
-$foDicomDirPath         = Join-Path -Path $packagesDirPath            -ChildPath "$foDicomName.$foDicomVersion"
-$foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath             -ChildPath "lib\net45\Dicom.Core.dll"
+$foDicomDirPath         = Join-Path -Path $packagesDirPath          -ChildPath "$foDicomName.$foDicomVersion"
+$foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath           -ChildPath "lib\net45\Dicom.Core.dll"
 #================================================================================================================================================
 Require-NuGetPackage `
 -PackageName $foDicomName `
@@ -393,11 +391,9 @@ do {
 
             if ($foundFile -eq $null) {                
                 Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedStoredItemspath."
-
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
             } else {
                 Write-Indented "Item for hash $studyHash already exists in one of our directories as $foundFile, rejecting."
-                
                 Reject-File -File $file
             }
             
@@ -434,13 +430,11 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteIndented-StudyTags -StudyTags $tags
-            
             MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
             
             $processedStoredItemPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath $file.Name
 
             Write-Indented "Moving $($file.FullName) to $processedStoredItemPath"
-
             Move-Item -Path $File.FullName -Destination $processedStoredItemPath
             
             Outdent
