@@ -55,9 +55,9 @@ function GetHashFrom-StudyTags {
 
 
 #################################################################################################################################################
-# WriteIndented-StudyTags
+# WriteStudyTags-Indented
 #################################################################################################################################################
-function WriteIndented-StudyTags {
+function WriteStudyTags-Indented {
     param (
         [Parameter(Mandatory = $true)]
         [PSObject]$StudyTags)
@@ -67,6 +67,34 @@ function WriteIndented-StudyTags {
     Write-Indented "Study Date:       $($StudyTags.StudyDate)"
     Write-Indented "Modality:         $($StudyTags.Modality)"
     Write-Indented "StudyInstanceUID: $($StudyTags.StudyInstanceUID)"
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
+# MaybeStripPixelDataAndThenMoveTo-Path 
+#################################################################################################################################################
+function MaybeStripPixelDataAndThenMoveTo-Path {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File,
+        [Parameter(Mandatory = $true)]
+        [string]$Destination
+    )
+
+    if ($File.Length -gt $global:largeFileThreshholdBytes) {
+        $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
+        $dataset = $dicomFile.Dataset
+
+        if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
+            $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
+            
+            $dicomFile.Save($File.FullName)
+            Write-Indented "Pixel Data stripped from large file $($File.Name) before moving it to $Destination."
+        }
+    }
+    
+    Move-Item -Path $File.FullName -Destination $Destination
 }
 #################################################################################################################################################
 

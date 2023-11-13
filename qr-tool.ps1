@@ -46,34 +46,6 @@ function MoveStudyBy-StudyInstanceUID {
 
 
 #################################################################################################################################################
-# MaybeStripPixelDataAndThenMoveTo-Path 
-#################################################################################################################################################
-function MaybeStripPixelDataAndThenMoveTo-Path {
-    param (
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$File,
-        [Parameter(Mandatory = $true)]
-        [string]$Destination
-    )
-
-    if ($File.Length -gt $global:largeFileThreshholdBytes) {
-        $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
-        $dataset = $dicomFile.Dataset
-
-        if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
-            $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
-            
-            $dicomFile.Save($File.FullName)
-            Write-Indented "Pixel Data stripped from large file $($File.Name) before moving it to $Destination."
-        }
-    }
-    
-    Move-Item -Path $File.FullName -Destination $Destination
-}
-#################################################################################################################################################
-
-
-#################################################################################################################################################
 # Set up packages
 #################################################################################################################################################
 $packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
@@ -141,7 +113,7 @@ do {
 
             $tags = Extract-StudyTags -File $file
 
-            WriteIndented-StudyTags -StudyTags $tags
+            WriteStudyTags-Indented -StudyTags $tags
             
             $studyHash                        = GetHashFrom-StudyTags -StudyTags $tags 
             $possibleQueuedStoredItemsPath    = Join-Path -Path $queuedStoredItemsDirPath    -ChildPath "$studyHash.dcm"
@@ -195,7 +167,7 @@ do {
             
             $tags = Extract-StudyTags -File $file
 
-            WriteIndented-StudyTags -StudyTags $tags
+            WriteStudyTags-Indented -StudyTags $tags
             MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
             
             $processedStoredItemPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath $file.Name
