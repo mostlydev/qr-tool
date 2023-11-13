@@ -128,10 +128,11 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 function ExtractTags {
     param (
-        [string]$FilePath
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File
     )
 
-    $dicomFile   = [Dicom.DicomFile]::Open($FilePath)
+    $dicomFile   = [Dicom.DicomFile]::Open($File.FullName)
     $dataset     = $dicomFile.Dataset
     $method      = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
@@ -235,7 +236,7 @@ do {
 
             StripPixelDataFromLargeFile -File $file
 
-            $tags = ExtractTags -FilePath $file.FullName
+            $tags = ExtractTags -File $file
 
             Write-Indented "Patient Name: $($tags.PatientName)"
             Write-Indented "Patient DOB: $($tags.PatientDob)"
