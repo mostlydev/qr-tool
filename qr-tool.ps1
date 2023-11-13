@@ -137,7 +137,9 @@ function File-IsTooFresh {
     $timeDiff      = (Get-Date) - $lastWriteTime
     $result        = ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds)
 
-    Write-Indented "$($file.Name) is too fresh."
+    if ($result) {
+        Write-Indented "$($file.Name) is too fresh."
+    }
                 
     return $result
 }
@@ -301,9 +303,9 @@ do {
             $possibleOutboundRequestPath = Join-Path -Path $outboundRequestsDirPath -ChildPath "$hashOutput.dcm"
             $possibleSentRequestPath     = Join-Path -Path $sentRequestsDirPath     -ChildPath "$hashOutput.dcm"
 
-            Write-Indented "Queued Path:           $possibleQueuedPath"
-            Write-Indented "Outbound Request Path: $possibleOutboundRequestPath"
-            Write-Indented "Sent Request Path:     $possibleSentRequestPath"
+            # Write-Indented "Queued Path:           $possibleQueuedPath"
+            # Write-Indented "Outbound Request Path: $possibleOutboundRequestPath"
+            # Write-Indented "Sent Request Path:     $possibleSentRequestPath"
             
             $foundFile = $null
 
