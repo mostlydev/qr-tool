@@ -25,9 +25,10 @@ $global:myAE                     = "QR-TOOL"
 
 
 ######################################################################################################################################################
-# Require some directories:
+# Require some directories. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if they
+# felt like it.
 ######################################################################################################################################################
-$global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot     -ChildPath "cache"
+$global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
 $global:incomingStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "incoming-stored-items"
 $global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath "queued-stored-items"
 $global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath "processed-stored-items"
