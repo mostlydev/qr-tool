@@ -279,7 +279,7 @@ Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExis
 ##################################################################################################################################
 do {
     ##############################################################################################################################
-    # Pass #1/4: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
+    # Pass #1/3: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
     ##############################################################################################################################
     
     $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
@@ -354,7 +354,19 @@ do {
     }
 
     ##############################################################################################################################
-    # All passes complete, maybe sleep and loop.
+    # Pass #2/3: Examine files in $queuedDirPath, generate move requests for them in $outboundRequestsPath and then delete them.
+    ##############################################################################################################################
+
+    # TODO
+    
+    ##############################################################################################################################
+    # Pass #2/3: Examine files in $outboundRequestsDirPath, issue the move requests and then move them to $sentRequestsPath.
+    ##############################################################################################################################
+
+    # TODO
+    
+    ##############################################################################################################################
+    # All passes complete, maybe sleep and loop, otherwise fall through and exit.
     ##############################################################################################################################
     if ($global:sleepSeconds -gt 0) {
         Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
