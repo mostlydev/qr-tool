@@ -330,15 +330,15 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 #################################################################################################################################################
 # Require some directories
 #################################################################################################################################################
-$incomingStoredItemsDirPath  = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "incoming-stored-items"
-$queuedDirPath               = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "queued"
-$sentRequestsDirPath         = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "sent-requests"
-$rejectedDirPath             = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "rejected"
+$incomingStoredItemsDirPath  = Join-Path -Path $global:scriptHomeDirPath -ChildPath "incoming-stored-items"
+$queuedStoredItemsDirPath    = Join-Path -Path $global:scriptHomeDirPath -ChildPath "queued-stored-items"
+$processedStoredItemsDirPath = Join-Path -Path $global:scriptHomeDirPath -ChildPath "processed-stored-items"
+$rejectedStoredItemsDirPath  = Join-Path -Path $global:scriptHomeDirPath -ChildPath "rejected-stored-items"
 #================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
-Require-DirectoryExists -DirectoryPath $queuedDirPath           -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $sentRequestsDirPath     -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $queuedStoredItemsDirPath    -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $processedStoredItemsDirPath -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $rejectedStoredItemsDirPath  -CreateIfNotExists $true
 #################################################################################################################################################
 
 
@@ -347,7 +347,7 @@ Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExis
 #################################################################################################################################################
 do {
     #############################################################################################################################################
-    # Pass #1/2: Examine files in $incomingStoredItemsDirPath and either accept them by moving them to $queuedDirPath or reject them.
+    # Pass #1/2: Examine files in $incomingStoredItemsDirPath and either accept them by moving them to $queuedStoredItemsDirPath or reject them.
     #############################################################################################################################################
     
     $filesInIncomingStoredItemsDir = Get-ChildItem -Path $incomingStoredItemsDirPath -Filter *.dcm
@@ -378,21 +378,21 @@ do {
             WriteIndented-StudyTags -StudyTags $tags
             
             $hashOutput              = GetHashFrom-StudyTags -StudyTags $tags 
-            $possibleQueuedPath      = Join-Path -Path $queuedDirPath       -ChildPath "$hashOutput.dcm"
-            $possibleSentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath "$hashOutput.dcm"
+            $possibleQueuedStoredItemsPath      = Join-Path -Path $queuedStoredItemsDirPath       -ChildPath "$hashOutput.dcm"
+            $possibleSentRequestPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath "$hashOutput.dcm"
 
             $foundFile = $null
 
-            if (Test-Path -Path $possibleQueuedPath) {
-                $foundFile = $possibleQueuedPath
+            if (Test-Path -Path $possibleQueuedStoredItemsPath) {
+                $foundFile = $possibleQueuedStoredItemsPath
             } elseif (Test-Path -Path $possibleSentRequestPath) {
                 $foundFile = $possibleSentRequestPath
             }
 
             if ($foundFile -eq $null) {                
-                Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedpath."
+                Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedStoredItemspath."
 
-                MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedPath
+                MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
             } else {
                 Write-Indented "Item for hash $hashOutput already exists in one of our directories as $foundFile, rejecting."
                 
@@ -405,22 +405,22 @@ do {
     }
 
     #############################################################################################################################################
-    # Pass #2/2: Examine files in $queuedDirPath, issue move requests for them and then move them to $sentRequestsPath.
+    # Pass #2/2: Examine files in $queuedStoredItemsDirPath, issue move requests for them and then move them to $processedStoredItemsPath.
     #############################################################################################################################################
 
-    $filesInQueuedDir = Get-ChildItem -Path $queuedDirPath -Filter *.dcm
+    $filesInQueuedStoredItemsDir = Get-ChildItem -Path $queuedStoredItemsDirPath -Filter *.dcm
 
-    if ($filesInQueuedDir.Count -eq 0) {
-        Write-Indented "Pass #2: No DCM files found in queued."
+    if ($filesInQueuedStoredItemsDir.Count -eq 0) {
+        Write-Indented "Pass #2: No DCM files found in queuedStoredItems."
     } else {
         $counter = 0
         
-        Write-Indented "Pass #2: Found $($filesInQueuedDir.Count) files in queued."
+        Write-Indented "Pass #2: Found $($filesInQueuedStoredItemsDir.Count) files in queuedStoredItems."
         
-        foreach ($file in $filesInQueuedDir) {
+        foreach ($file in $filesInQueuedStoredItemsDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInQueuedDir.Count) '$($file.FullName)'..."
+            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$($file.FullName)'..."
             
             Indent
             
@@ -430,7 +430,7 @@ do {
             
             MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
             
-            $sentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath $file.Name
+            $sentRequestPath = Join-Path -Path $processedStoredItemsDirPath -ChildPath $file.Name
 
             Write-Indented "Moving $($file.FullName) to $sentRequestPath"
 
