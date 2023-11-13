@@ -33,7 +33,7 @@ $queuedStoredItemsDirPath    = Join-Path -Path $cacheDirBasePath -ChildPath "que
 $processedStoredItemsDirPath = Join-Path -Path $cacheDirBasePath -ChildPath "processed-stored-items"
 $rejectedStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "rejected-stored-items"
 #================================================================================================================================================
-Require-DirectoryExists -DirectoryPath $cacheDirBasePath           # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedStoredItemsDirPath    -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $processedStoredItemsDirPath -CreateIfNotExists $true
