@@ -1,5 +1,19 @@
 #################################################################################################################################################
-# Configurable globals
+# Globals meant not for configuration use, these probably shouldn't be changed by the user.
+#################################################################################################################################################
+$global:indent                   = 0
+#################################################################################################################################################
+
+
+#################################################################################################################################################
+# Include required function libs.
+#################################################################################################################################################
+. (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
+#################################################################################################################################################
+
+
+#################################################################################################################################################
+# Globals meant to be used for configuration purposes, user may change as required.
 #################################################################################################################################################
 $global:sleepSeconds             = 0 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
 $global:mtimeThreshholdSeconds   = 3
@@ -11,14 +25,6 @@ $global:qrServerHost             = "localhost"
 $global:qrServerPort             = 2763
 $global:qrDestAE                 = "FLUXTEST1AB"
 $global:myAE                     = "QR-TOOL"
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# Globals not for configuration use
-#################################################################################################################################################
-$global:scriptHomeDirPath        = $PSScriptRoot
-$global:indent                   = 0
 #################################################################################################################################################
 
 
@@ -58,42 +64,6 @@ function Indent {
 function Outdent {
     if ($global:indent -gt 0) {
         $global:indent -= 1
-    }
-}
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# Require-DirectoryExists
-#################################################################################################################################################
-function Require-DirectoryExists {
-    param(
-        [string]$DirectoryPath,
-        [bool]$CreateIfNotExists = $false
-    )
-    
-    try {
-        if (-Not (Test-Path -Path $DirectoryPath)) {
-            if (-Not $CreateIfNotExists) {
-                Throw "$DirectoryPath does not exist."
-            }
-            
-            Write-Indented "Didn't find $DirectoryPath, creating it..." -NoNewline
-            $null = New-Item -ItemType Directory -Path $DirectoryPath
-            
-            if (-Not (Test-Path -Path $DirectoryPath)) {
-                Throw "Failed to create directory at $DirectoryPath."
-            } else {
-                Write-Host " done."
-            }
-        } else {
-            Write-Indented "Found $DirectoryPath."
-        }
-    }
-    catch {
-        Write-Indented "Error: $_"
-        
-        Exit 1
     }
 }
 #################################################################################################################################################
@@ -310,7 +280,7 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
 #################################################################################################################################################
 # Set up packages
 #################################################################################################################################################
-$packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath -ChildPath "packages"
+$packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
 $foDicomDirPath         = Join-Path -Path $packagesDirPath          -ChildPath "$foDicomName.$foDicomVersion"
@@ -328,10 +298,10 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 #################################################################################################################################################
 # Require some directories
 #################################################################################################################################################
-$incomingStoredItemsDirPath  = Join-Path -Path $global:scriptHomeDirPath -ChildPath "incoming-stored-items"
-$queuedStoredItemsDirPath    = Join-Path -Path $global:scriptHomeDirPath -ChildPath "queued-stored-items"
-$processedStoredItemsDirPath = Join-Path -Path $global:scriptHomeDirPath -ChildPath "processed-stored-items"
-$rejectedStoredItemsDirPath  = Join-Path -Path $global:scriptHomeDirPath -ChildPath "rejected-stored-items"
+$incomingStoredItemsDirPath  = Join-Path -Path $PSScriptRoot -ChildPath "incoming-stored-items"
+$queuedStoredItemsDirPath    = Join-Path -Path $PSScriptRoot -ChildPath "queued-stored-items"
+$processedStoredItemsDirPath = Join-Path -Path $PSScriptRoot -ChildPath "processed-stored-items"
+$rejectedStoredItemsDirPath  = Join-Path -Path $PSScriptRoot -ChildPath "rejected-stored-items"
 #================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedStoredItemsDirPath    -CreateIfNotExists $true
