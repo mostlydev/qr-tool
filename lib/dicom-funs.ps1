@@ -100,7 +100,7 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
 
 
 #################################################################################################################################################
-# Move-StudyByStudyInstanceUID: THIS NEEDS TO BECOME A Cmdlet THAT HAS A SENSIBLE RETURN VALUE!
+# Move-StudyByStudyInstanceUID: 
 #################################################################################################################################################
 function Move-StudyByStudyInstanceUID {
     param (
