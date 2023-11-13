@@ -312,7 +312,7 @@ do {
             Write-Indented "Study Date:   $($tags.StudyDate)"
             Write-Indented "Modality:     $($tags.Modality)"
 
-            $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
+            $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)-$($tags.Modality)"
 
             Write-Indented "Hash Input:   $hashInput"
             
@@ -341,7 +341,7 @@ do {
             if ($null -eq $foundFile) {                
                 Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedpath."
 
-                StripPixelDataFromLargeFile -File $file -Destination $possibleQueuedPath
+                MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedPath
             } else {
                 Write-Indented "Item for hash $hashOutput already exists in one of our directories as $foundFile, rejecting."
                 
