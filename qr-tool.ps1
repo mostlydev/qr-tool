@@ -291,11 +291,11 @@ do {
     $filesInInboundDir = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
     if ($filesInInboundDir.Count -eq 0) {
-        Write-Indented "No DCM files found in inbound."
+        Write-Indented "Pass #1: No DCM files found in inbound."
     } else {
         $counter = 0
         
-        Write-Indented "Found $($filesInInboundDir.Count) files in inbound."
+        Write-Indented "Pass #1: Found $($filesInInboundDir.Count) files in inbound."
         
         foreach ($file in $filesInInboundDir) {
             $counter++
@@ -360,11 +360,11 @@ do {
     $filesInQueuedDir = Get-ChildItem -Path $queuedDirPath -Filter *.dcm
 
     if ($filesInQueuedDir.Count -eq 0) {
-        Write-Indented "No DCM files found in queued."
+        Write-Indented "Pass #2: No DCM files found in queued."
     } else {
         $counter = 0
         
-        Write-Indented "Found $($filesInQueuedDir.Count) files in queued."
+        Write-Indented "Pass #2: Found $($filesInQueuedDir.Count) files in queued."
         
         foreach ($file in $filesInQueuedDir) {
             $counter++
