@@ -176,7 +176,7 @@ function File-IsTooFresh {
 
         Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
 
-        StripPixelDataFromLargeFileAndMoveTo -File $file -Destination $rejectedPath
+        StripPixelDataFromLargeFileAndMoveTo-Path -File $file -Destination $rejectedPath
     }
 }
 ##################################################################################################################################
@@ -211,9 +211,9 @@ function File-IsTooFresh {
 
 
 ##################################################################################################################################
-# StripPixelDataFromLargeFileAndMoveTo
+# StripPixelDataFromLargeFileAndMoveTo-Path
 ##################################################################################################################################
-function StripPixelDataFromLargeFileAndMoveTo {
+function StripPixelDataFromLargeFileAndMoveTo-Path {
     param (
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]$File,
