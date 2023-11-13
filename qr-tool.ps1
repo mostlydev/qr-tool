@@ -1,7 +1,8 @@
 #################################################################################################################################################
 # Include required function libs.
 #################################################################################################################################################
-# These included files also depend on each other, so removing any of them is likely to cause problems. 
+# These included files also depend on each other and on globals defined here, so removing any of them is likely to cause problems:
+# they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
 #################################################################################################################################################
@@ -13,7 +14,7 @@
 $global:sleepSeconds             = 0 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
 $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
-$global:rejectByDeleting         = $false
+$global:rejectByDeleting         = $true
 #================================================================================================================================================
 $global:qrServerAE               = "HOROS"
 $global:qrServerHost             = "localhost"
@@ -44,12 +45,14 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 #################################################################################################################################################
 # Require some directories
 #################################################################################################################################################
-$incomingStoredItemsDirPath  = Join-Path -Path $PSScriptRoot -ChildPath "incoming-stored-items"
-$queuedStoredItemsDirPath    = Join-Path -Path $PSScriptRoot -ChildPath "queued-stored-items"
-$processedStoredItemsDirPath = Join-Path -Path $PSScriptRoot -ChildPath "processed-stored-items"
-$rejectedStoredItemsDirPath  = Join-Path -Path $PSScriptRoot -ChildPath "rejected-stored-items"
+$cacheDirBasePath            = $PSScriptRoot
+$incomingStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "incoming-stored-items"
+$queuedStoredItemsDirPath    = Join-Path -Path $cacheDirBasePath -ChildPath "queued-stored-items"
+$processedStoredItemsDirPath = Join-Path -Path $cacheDirBasePath -ChildPath "processed-stored-items"
+$rejectedStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "rejected-stored-items"
 #================================================================================================================================================
-Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $cacheDirBasePath           # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedStoredItemsDirPath    -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $processedStoredItemsDirPath -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $rejectedStoredItemsDirPath  -CreateIfNotExists $true
