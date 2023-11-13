@@ -55,9 +55,9 @@ function GetHashFrom-StudyTags {
 
 
 #################################################################################################################################################
-# WriteIndented-StudyTags
+# WriteStudyTags-Indented
 #################################################################################################################################################
-function WriteIndented-StudyTags {
+function WriteStudyTags-Indented {
     param (
         [Parameter(Mandatory = $true)]
         [PSObject]$StudyTags)
