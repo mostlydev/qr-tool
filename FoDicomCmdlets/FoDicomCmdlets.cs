@@ -39,7 +39,7 @@ namespace FoDicomCmdlets
       {
         responses.Add(response);
       };
-
+      
       client.AddRequestAsync(request).GetAwaiter().GetResult();
       client.SendAsync().GetAwaiter().GetResult();
 
@@ -47,3 +47,4 @@ namespace FoDicomCmdlets
     }
   }
 }
+  

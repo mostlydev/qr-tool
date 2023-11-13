@@ -55,19 +55,8 @@ Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -Crea
 ######################################################################################################################################################
 # Set up packages (well, just fo-dicom presently):
 ######################################################################################################################################################
-$global:packagesDirPath        = Join-Path -Path $PSScriptRoot           -ChildPath "packages"
-$global:foDicomName            = "fo-dicom.Desktop"
-$global:foDicomVersion         = "4.0.8"
-$global:foDicomDirPath         = Join-Path -Path $global:packagesDirPath -ChildPath "$global:foDicomName.$global:foDicomVersion"
-$global:foDicomExpectedDllPath = Join-Path -Path $global:foDicomDirPath  -ChildPath "lib\net45\Dicom.Core.dll"
-#=====================================================================================================================================================
-Require-NuGetPackage `
--PackageName $global:foDicomName `
--PackageVersion $global:foDicomVersion `
--ExpectedDllPath $global:foDicomExpectedDllPath `
--DestinationDir $global:packagesDirPath
-#=====================================================================================================================================================
-$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
+$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/packages/fo-dicom.Desktop.4.0.8/lib/net45/Dicom.Core.dll"
+$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
 ######################################################################################################################################################
 
 
@@ -162,9 +151,21 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-            # Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
             
-            $moveResponses = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
+            $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
+            $lastResponseStatus = $null
+
+            if ($moveResponses -and $moveResponses.Count -gt 0) {
+                $lastResponseStatus = $moveResponses[-1].Status
+            } else {
+                Write-Indented "No responses received"
+            }
+            
+            if ($lastResponseStatus -eq [Dicom.Network.DicomStatus]::Success) {
+                Write-Indented "The last response was successful."
+            } else {
+                Write-Indented "The last response was not successful. Status: $($lastResponseStatus)"
+            }
             
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
