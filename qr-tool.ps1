@@ -261,18 +261,19 @@ do {
             Write-Indented "Queued Path:           $possibleQueuedPath"
             Write-Indented "Outbound Request Path: $possibleOutboundRequestPath"
             Write-Indented "Sent Request Path:     $possibleSentRequestPath"
-#            Write-Indented "Sent Requests Path: $possibleSentRequestsPath"
             
-            # $newPath = "$baseDirPath\queue\$hashOutput.dcm"
-            
-            # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
-            #   Move-Item -Path $file.FullName -Destination $newPath
-            # }
-            # else {
-            #   Remove-Item -Path $file.FullName
-            # }
-            # $processedHashes[$hash] = $true
+            if (-not (Test-Path -Path $possibleQueuedPath) -and 
+                -not (Test-Path -Path $possibleOutboundRequestPath) -and 
+                -not (Test-Path -Path $possibleSentRequestPath))
+            {                
+                Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedpath."
 
+                Move-Item -Path $file.FullName -Destination $possibleQueuedPath
+            } else {
+                Write-Indented "File already exists in one of the directories. Deleting source file."
+                Remove-Item -Path $file.FullName
+            }
+            
             Outdent
         }
         ##########################################################################################################################
