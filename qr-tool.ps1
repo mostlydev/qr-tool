@@ -25,6 +25,23 @@ $global:myAE                     = "QR-TOOL"
 
 
 #################################################################################################################################################
+# Require some directories:
+#################################################################################################################################################
+$cacheDirBasePath            = $PSScriptRoot
+$incomingStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "incoming-stored-items"
+$queuedStoredItemsDirPath    = Join-Path -Path $cacheDirBasePath -ChildPath "queued-stored-items"
+$processedStoredItemsDirPath = Join-Path -Path $cacheDirBasePath -ChildPath "processed-stored-items"
+$rejectedStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "rejected-stored-items"
+#================================================================================================================================================
+Require-DirectoryExists -DirectoryPath $cacheDirBasePath           # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $queuedStoredItemsDirPath    -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $processedStoredItemsDirPath -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $rejectedStoredItemsDirPath  -CreateIfNotExists $true
+#################################################################################################################################################
+
+
+#################################################################################################################################################
 # Set up packages (well, just fo-dicom presently):
 #################################################################################################################################################
 $packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
@@ -40,23 +57,6 @@ Require-NuGetPackage `
 -DestinationDir $packagesDirPath
 #================================================================================================================================================
 $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# Require some directories:
-#################################################################################################################################################
-$cacheDirBasePath            = $PSScriptRoot
-$incomingStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "incoming-stored-items"
-$queuedStoredItemsDirPath    = Join-Path -Path $cacheDirBasePath -ChildPath "queued-stored-items"
-$processedStoredItemsDirPath = Join-Path -Path $cacheDirBasePath -ChildPath "processed-stored-items"
-$rejectedStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "rejected-stored-items"
-#================================================================================================================================================
-Require-DirectoryExists -DirectoryPath $cacheDirBasePath           # if this doesn't already exist, assume something is seriously wrong, bail.
-Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
-Require-DirectoryExists -DirectoryPath $queuedStoredItemsDirPath    -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $processedStoredItemsDirPath -CreateIfNotExists $true
-Require-DirectoryExists -DirectoryPath $rejectedStoredItemsDirPath  -CreateIfNotExists $true
 #################################################################################################################################################
 
 
