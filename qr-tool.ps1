@@ -185,9 +185,9 @@ function File-IsTooFresh {
 
 
 ##################################################################################################################################
-# Extract-Tags
+# Extract-StudyTags
 ##################################################################################################################################
-function Extract-Tags {
+function Extract-StudyTags {
     param (
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]$File
@@ -208,10 +208,59 @@ function File-IsTooFresh {
         PatientDob  = $patientDob
         StudyDate   = $studyDate
         Modality    = $modality
-        StudyUID    = $studyUID
+        StudyInstanceUID    = $studyUID
     }
 
     return $result
+}
+##################################################################################################################################
+
+
+##################################################################################################################################
+# MoveStudyBy-StudyInstanceUID: THIS NEEDS TO BECOME A Cmdlet THAT HAS A SENSIBLE RETURN VALUE!
+##################################################################################################################################
+function MoveStudyBy-StudyInstanceUID {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$StudyInstanceUID
+    )
+
+    Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
+    
+    $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $StudyInstanceUID)
+    $client  = New-Object Dicom.Network.Client.DicomClient(
+        $global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)
+    
+    $null = $client.AddRequestAsync($request).GetAwaiter().GetResult()
+    
+    $task = $client.SendAsync()
+    $task.Wait()
+
+    Write-Host " done."
+}
+##################################################################################################################################
+
+
+##################################################################################################################################
+# GetHashFrom-StudyTags
+##################################################################################################################################
+function GetHashFrom-StudyTags {
+    param (
+        [Parameter(Mandatory = $true)]
+        [PSObject]$StudyTags
+    )
+
+    $hashInput = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
+
+    Write-Indented "Hash Input: $hashInput"
+
+    $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
+    $hashBytes = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
+    $hashOutput = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
+    
+    Write-Indented "Hash Output: $hashOutput"
+
+    return $hashOutput
 }
 ##################################################################################################################################
 
@@ -307,22 +356,15 @@ do {
                 continue
             }
 
-            $tags = Extract-Tags -File $file
+            $tags = Extract-StudyTags -File $file
 
             Write-Indented "Patient Name: $($tags.PatientName)"
             Write-Indented "Patient DOB:  $($tags.PatientDob)"
             Write-Indented "Study Date:   $($tags.StudyDate)"
             Write-Indented "Modality:     $($tags.Modality)"
-            Write-Indented "StudyUID:     $($tags.StudyUID)"
+            Write-Indented "StudyInstanceUID:     $($tags.StudyInstanceUID)"
 
-            $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)-$($tags.Modality)-$($tags.StudyUID)"
-
-            Write-Indented "Hash Input:   $hashInput"
-            
-            $hashOutput  = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
-
-            Write-Indented "Hash Output:  $hashOutput"
-
+            $hashOutput              = GetHashFrom-StudyTags -StudyTags $tags 
             $possibleQueuedPath      = Join-Path -Path $queuedDirPath       -ChildPath "$hashOutput.dcm"
             $possibleSentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath "$hashOutput.dcm"
 
@@ -369,23 +411,16 @@ do {
             
             Indent
             
-            $tags = Extract-Tags -File $file
+            $tags = Extract-StudyTags -File $file
 
-            Write-Indented "Patient Name: $($tags.PatientName)"
-            Write-Indented "Patient DOB:  $($tags.PatientDob)"
-            Write-Indented "Study Date:   $($tags.StudyDate)"
-            Write-Indented "Modality:     $($tags.Modality)"
-            Write-Indented "StudyUID:     $($tags.StudyUID)"
+            Write-Indented "Patient Name:     $($tags.PatientName)"
+            Write-Indented "Patient DOB:      $($tags.PatientDob)"
+            Write-Indented "Study Date:       $($tags.StudyDate)"
+            Write-Indented "Modality:         $($tags.Modality)"
+            Write-Indented "StudyInstanceUID: $($tags.StudyInstanceUID)"
 
-            $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $tags.StudyUID)
-            $client  = New-Object Dicom.Network.Client.DicomClient(
-                $global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)
+            MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
             
-            $null = $client.AddRequestAsync($request).GetAwaiter().GetResult()
-
-            $task = $client.SendAsync()
-            $task.Wait()
-
             $sentRequestPath = Join-Path -Path $sentRequestsDirPath -ChildPath $file.Name
 
             Write-Indented "Moving $($file.FullName) to $sentRequestPath"
