@@ -9,11 +9,17 @@ $global:sleepSeconds             = 0 # 3 # if greater than 0 script will loop, s
 $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
 $global:rejectByDeleting         = $true
+#=================================================================================================================================
+$global:qrServerAE               = "HOROS"
+$global:qrServerHost             = "HOROS"
+$global:qrServerPort             = 11112
+$global:qrServerCalledAE         = "CPULTRA1"
+$global:qrServerDestAE           = "FLUXTEST1AB"
 ##################################################################################################################################
 
 
 ##################################################################################################################################
-# Globals not for configuration uss
+# Globals not for configuration use
 ##################################################################################################################################
 $global:scriptHomeDirPath        = $PSScriptRoot
 $global:indent                   = 0
@@ -318,12 +324,9 @@ do {
 
             Write-Indented "Hash Output:  $hashOutput"
 
-            $possibleQueuedPath          = Join-Path -Path $queuedDirPath           -ChildPath "$hashOutput.dcm"
-            $possibleSentRequestPath     = Join-Path -Path $sentRequestsDirPath     -ChildPath "$hashOutput.dcm"
+            $possibleQueuedPath      = Join-Path -Path $queuedDirPath           -ChildPath "$hashOutput.dcm"
+            $possibleSentRequestPath = Join-Path -Path $sentRequestsDirPath     -ChildPath "$hashOutput.dcm"
 
-            # Write-Indented "Queued Path:           $possibleQueuedPath"
-            # Write-Indented "Sent Request Path:     $possibleSentRequestPath"
-            
             $foundFile = $null
 
             if (Test-Path -Path $possibleQueuedPath) {
