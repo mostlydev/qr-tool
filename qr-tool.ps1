@@ -133,14 +133,14 @@ function Require-NuGetPackage {
         [System.IO.FileInfo]$File
     )
     if ($global:rejectByDeleting) {
-        Write-Indented "Deleting $($file.FullName)"
+        Write-Indented "Rejecting $($file.FullName) by deleting it."
         
         Remove-Item -Path $file.FullName
     }
     else {
         $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $file.Name
 
-        Write-Indented "Moving $($file.FullName) to $rejectedPath"
+        Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
 
         Move-Item -Path $file.FullName -Destination $rejectedPath
     }
@@ -234,6 +234,10 @@ Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExis
 # Main
 ##################################################################################################################################
 do {
+    ##############################################################################################################################
+    # Pass #1/4: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
+    ##############################################################################################################################
+    
     $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
     if ($filesInInbound.Count -eq 0) {
@@ -243,7 +247,6 @@ do {
         
         Write-Indented "Found $($filesInInbound.Count) files in inbound."
         
-        ##########################################################################################################################
         foreach ($file in $filesInInbound) {
             $counter++
 
@@ -284,15 +287,22 @@ do {
             Write-Indented "Outbound Request Path: $possibleOutboundRequestPath"
             Write-Indented "Sent Request Path:     $possibleSentRequestPath"
             
-            if (-not (Test-Path -Path $possibleQueuedPath) -and 
-                -not (Test-Path -Path $possibleOutboundRequestPath) -and 
-                -not (Test-Path -Path $possibleSentRequestPath))
-            {                
+            $foundFile = $null
+
+            if (Test-Path -Path $possibleQueuedPath) {
+                $foundFile = $possibleQueuedPath
+            } elseif (Test-Path -Path $possibleOutboundRequestPath) {
+                $foundFile = $possibleOutboundRequestPath
+            } elseif (Test-Path -Path $possibleSentRequestPath) {
+                $foundFile = $possibleSentRequestPath
+            }
+
+            if ($null -eq $foundFile) {                
                 Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedpath."
 
                 Move-Item -Path $file.FullName -Destination $possibleQueuedPath
             } else {
-                Write-Indented "File already exists in one of the directories, rejecting."
+                Write-Indented "Item for hash $hashOutput already exists in one of our directories as $foundFile, rejecting."
                 
                 Reject-File -File $file
             }
@@ -302,6 +312,9 @@ do {
         ##########################################################################################################################
     }
 
+    ##############################################################################################################################
+    # All passes complete, maybe sleep and loop.
+    ##############################################################################################################################
     if ($global:sleepSeconds -gt 0) {
         Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
         Start-Sleep -Seconds $global:sleepSeconds
