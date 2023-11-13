@@ -233,17 +233,18 @@ do {
                 continue
             }
 
+            StripPixelDataFromLargeFile -File $file
+
             $tags = ExtractTags -FilePath $file.FullName
+
             Write-Indented "Patient Name: $($tags.PatientName)"
             Write-Indented "Patient DOB: $($tags.PatientDob)"
             Write-Indented "Study Date: $($tags.StudyDate)"
 
-            $hashInput       = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
+            $hashInput  = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
 
             Write-Indented "Hash Input:   $hashInput"
             
-            StripPixelDataFromLargeFile -File $file
-
             $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
 
             Write-Indented "Hash Output:  $hashOutput"
