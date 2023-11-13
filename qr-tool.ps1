@@ -205,12 +205,14 @@ function File-IsTooFresh {
     $patientDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
     $studyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate,        [string]""))
     $modality    = $method.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
+    $studyUID    = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
     $result = New-Object PSObject -Property @{
         PatientName = $patientName
         PatientDob  = $patientDob
         StudyDate   = $studyDate
         Modality    = $modality
+        StudyUID    = $studyUID
     }
 
     return $result
@@ -315,8 +317,9 @@ do {
             Write-Indented "Patient DOB:  $($tags.PatientDob)"
             Write-Indented "Study Date:   $($tags.StudyDate)"
             Write-Indented "Modality:     $($tags.Modality)"
+            Write-Indented "StudyUID:     $($tags.StudyUID)"
 
-            $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)-$($tags.Modality)"
+            $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)-$($tags.Modality)-$($tags.StudyUID)"
 
             Write-Indented "Hash Input:   $hashInput"
             
