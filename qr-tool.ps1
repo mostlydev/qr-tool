@@ -153,7 +153,7 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-            MoveStudyBy-StudyInstanceUID $tags.StudyInstanceUID
+            Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
             
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
