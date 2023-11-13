@@ -1,8 +1,9 @@
 ######################################################################################################################################################
 # Include required function libs:
 ######################################################################################################################################################
-# These included files depend on each other and on globals defined here, so removing any of them is likely to cause problems: the are just being
+# These included files depend on each other and on globals defined here, so removing any of them is likely to cause problems: they are just being
 # used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
+#=====================================================================================================================================================
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
 ######################################################################################################################################################
@@ -15,12 +16,12 @@ $global:sleepSeconds             = 0 # if greater than 0 script will loop, sleep
 $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
 $global:rejectByDeleting         = $true
+$global:myAE                     = "QR-TOOL"
 #=====================================================================================================================================================
 $global:qrServerAE               = "HOROS"
 $global:qrServerHost             = "localhost"
 $global:qrServerPort             = 2763
 $global:qrDestAE                 = "FLUXTEST1AB"
-$global:myAE                     = "QR-TOOL"
 ######################################################################################################################################################
 
 
