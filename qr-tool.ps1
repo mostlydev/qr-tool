@@ -125,7 +125,32 @@ function Require-NuGetPackage {
 ##################################################################################################################################
 
 
-##################################################################################################################################
+##################################################################################################################################
+function ExtractTags {
+    param (
+        [string]$FilePath
+    )
+
+    $dicomFile   = [Dicom.DicomFile]::Open($FilePath)
+    $dataset     = $dicomFile.Dataset
+    $method      = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+
+    $patientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string]""))
+    $patientDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
+    $studyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string]""))
+
+    $result = New-Object PSObject -Property @{
+        PatientName = $patientName
+        PatientDob  = $patientDob
+        StudyDate   = $studyDate
+    }
+
+    return $result
+}
+##################################################################################################################################
+
+
+##################################################################################################################################
 # Set up packages
 ##################################################################################################################################
 $packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "packages"
@@ -187,28 +212,24 @@ do {
                 continue
             }
 
-            $dicomFile       = [Dicom.DicomFile]::Open($file.FullName)
-            $dataset         = $dicomFile.Dataset
-            $method          = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
-            $filePatientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string] ""))
-            $filePatientDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string] ""))
-            $fileStudyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string] ""))
-            $hashInput       = "$filePatientName-$filePatientDob-$fileStudyDate"
+            $tags = ExtractTags -FilePath $file.FullName
+            Write-Indented "Patient Name: $($tags.PatientName)"
+            Write-Indented "Patient DOB: $($tags.PatientDob)"
+            Write-Indented "Study Date: $($tags.StudyDate)"
 
-            Write-Indented "Patient Name: $filePatientName"
-            Write-Indented "Patient DOB:  $filePatientDob"
-            Write-Indented "Study Date:   $fileStudydate"
+            $hashInput       = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
+
             Write-Indented "Hash Input:   $hashInput"
             
-            if ($file.Length -gt $global:largeFileThreshholdBytes) {
-                if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
-                    $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
-                }
+            # if ($file.Length -gt $global:largeFileThreshholdBytes) {
+            #     if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
+            #         $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
+            #     }
 
-                $dicomFile.Save($file.FullName)
+            #     $dicomFile.Save($file.FullName)
 
-                Write-Indented "Pixel Data stripped from large file $file."
-            }
+            #     Write-Indented "Pixel Data stripped from large file $file."
+            # }
             
             $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
 
