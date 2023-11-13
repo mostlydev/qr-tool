@@ -310,6 +310,7 @@ do {
             Write-Indented "Patient Name: $($tags.PatientName)"
             Write-Indented "Patient DOB:  $($tags.PatientDob)"
             Write-Indented "Study Date:   $($tags.StudyDate)"
+            Write-Indented "Modality:     $($tags.Modality)"
 
             $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
 
