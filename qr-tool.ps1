@@ -146,9 +146,10 @@ function Require-NuGetPackage {
     }
 }
 ##################################################################################################################################
-    
+
+
 ##################################################################################################################################
-function ExtractTags {
+function Extract-Tags {
     param (
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]$File
@@ -261,7 +262,7 @@ do {
 
             StripPixelDataFromLargeFile -File $file
 
-            $tags = ExtractTags -File $file
+            $tags = Extract-Tags -File $file
 
             Write-Indented "Patient Name: $($tags.PatientName)"
             Write-Indented "Patient DOB:  $($tags.PatientDob)"
