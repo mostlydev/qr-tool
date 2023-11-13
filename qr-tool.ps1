@@ -231,6 +231,7 @@ do {
 
             if ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds) {
                 Write-Indented "$($file.Name) is too new, skipping it for now."
+                
                 continue
             }
 
@@ -239,14 +240,14 @@ do {
             $tags = ExtractTags -File $file
 
             Write-Indented "Patient Name: $($tags.PatientName)"
-            Write-Indented "Patient DOB: $($tags.PatientDob)"
-            Write-Indented "Study Date: $($tags.StudyDate)"
+            Write-Indented "Patient DOB:  $($tags.PatientDob)"
+            Write-Indented "Study Date:   $($tags.StudyDate)"
 
-            $hashInput  = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
+            $hashInput   = "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
 
             Write-Indented "Hash Input:   $hashInput"
             
-            $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
+            $hashOutput  = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
 
             Write-Indented "Hash Output:  $hashOutput"
 
@@ -266,8 +267,9 @@ do {
     }
 
     if ($global:sleepSeconds -gt 0) {
-        Write-Indented "Sleeping $($global:sleepSeconds) seconds..."
-        Start-Sleep -Seconds $global:sleepSeconds 
+        Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
+        Start-Sleep -Seconds $global:sleepSeconds
+        Write-Host " done."
     }
     ##############################################################################################################################
 } while ($global:sleepSeconds -gt 0)#
