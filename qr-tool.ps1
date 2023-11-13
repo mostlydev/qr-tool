@@ -313,12 +313,12 @@ $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 ##################################################################################################################################
 # Require some directories
 ##################################################################################################################################
-$inboundStoredItemsDirPath          = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "inbound-stored-items"
-$queuedDirPath           = Join-Path -Path $global:scriptHomeDirPath             -ChildPath "queued"
-$sentRequestsDirPath     = Join-Path -Path $global:scriptHomeDirPath             -ChildPath "sent-requests"
-$rejectedDirPath         = Join-Path -Path $global:scriptHomeDirPath             -ChildPath "rejected"
+$incomingStoredItemsDirPath  = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "incoming-stored-items"
+$queuedDirPath               = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "queued"
+$sentRequestsDirPath         = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "sent-requests"
+$rejectedDirPath             = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "rejected"
 #=================================================================================================================================
-Require-DirectoryExists -DirectoryPath $inboundStoredItemsDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $incomingStoredItemsDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedDirPath           -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $sentRequestsDirPath     -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExists $true
@@ -330,22 +330,22 @@ Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExis
 ##################################################################################################################################
 do {
     ##############################################################################################################################
-    # Pass #1/2: Examine files in $inboundStoredItemsDirPath and either accept them by moving them to $queuedDirPath or reject them.
+    # Pass #1/2: Examine files in $incomingStoredItemsDirPath and either accept them by moving them to $queuedDirPath or reject them.
     ##############################################################################################################################
     
-    $filesInInboundStoredItemsDir = Get-ChildItem -Path $inboundStoredItemsDirPath -Filter *.dcm
+    $filesInIncomingStoredItemsDir = Get-ChildItem -Path $incomingStoredItemsDirPath -Filter *.dcm
 
-    if ($filesInInboundStoredItemsDir.Count -eq 0) {
-        Write-Indented "Pass #1: No DCM files found in inboundStoredItemsDir."
+    if ($filesInIncomingStoredItemsDir.Count -eq 0) {
+        Write-Indented "Pass #1: No DCM files found in incomingStoredItemsDir."
     } else {
         $counter = 0
         
-        Write-Indented "Pass #1: Found $($filesInInboundStoredItemsDir.Count) files in inboundStoredItems."
+        Write-Indented "Pass #1: Found $($filesInIncomingStoredItemsDir.Count) files in incomingStoredItems."
         
-        foreach ($file in $filesInInboundStoredItemsDir) {
+        foreach ($file in $filesInIncomingStoredItemsDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInInboundStoredItemsDir.Count) '$($file.FullName)'..."
+            Write-Indented "Processing file #$counter/$($filesInIncomingStoredItemsDir.Count) '$($file.FullName)'..."
             
             Indent
             
