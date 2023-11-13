@@ -45,11 +45,11 @@ Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -Crea
 ######################################################################################################################################################
 # Set up packages (well, just fo-dicom presently):
 ######################################################################################################################################################
-$global:packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
+$global:packagesDirPath        = Join-Path -Path $PSScriptRoot           -ChildPath "packages"
 $global:foDicomName            = "fo-dicom.Desktop"
 $global:foDicomVersion         = "4.0.8"
-$global:foDicomDirPath         = Join-Path -Path $global:packagesDirPath          -ChildPath "$global:foDicomName.$global:foDicomVersion"
-$global:foDicomExpectedDllPath = Join-Path -Path $global:foDicomDirPath           -ChildPath "lib\net45\Dicom.Core.dll"
+$global:foDicomDirPath         = Join-Path -Path $global:packagesDirPath -ChildPath "$global:foDicomName.$global:foDicomVersion"
+$global:foDicomExpectedDllPath = Join-Path -Path $global:foDicomDirPath  -ChildPath "lib\net45\Dicom.Core.dll"
 #=====================================================================================================================================================
 Require-NuGetPackage `
 -PackageName $global:foDicomName `
