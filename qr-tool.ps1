@@ -28,6 +28,7 @@ function Write-Indented {
     )
 
     $indentString = " " * (2 * $global:indent)
+    
     if ($NoNewLine) {
         Write-Host "$indentString$Message" -NoNewline
     } else {
@@ -174,13 +175,13 @@ do {
         foreach ($file in $filesInInbound) {
             $counter++
 
-            Write-Indented "  Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
+            Write-Indented "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
             
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
             if ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds) {
-                Write-Indented "    $($file.Name) is too new, skipping it for now."
+                Write-Indented "$($file.Name) is too new, skipping it for now."
                 continue
             }
 
@@ -192,10 +193,10 @@ do {
             $fileStudyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string] ""))
             $hashInput       = "$filePatientName-$filePatientDob-$fileStudyDate"
 
-            Write-Indented "    Patient Name: $filePatientName"
-            Write-Indented "    Patient DOB:  $filePatientDob"
-            Write-Indented "    Study Date:   $fileStudydate"
-            Write-Indented "    Hash Input:   $hashInput"
+            Write-Indented "Patient Name: $filePatientName"
+            Write-Indented "Patient DOB:  $filePatientDob"
+            Write-Indented "Study Date:   $fileStudydate"
+            Write-Indented "Hash Input:   $hashInput"
             
             if ($file.Length -gt $global:largeFileThreshholdBytes) {
                 if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
@@ -204,12 +205,12 @@ do {
 
                 $dicomFile.Save($file.FullName)
 
-                Write-Indented "    Pixel Data stripped from large file $file."
+                Write-Indented "Pixel Data stripped from large file $file."
             }
             
             $hashOutput = [System.BitConverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create("MD5").ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))).Replace("-", "")
 
-            Write-Indented "    Hash Output:  $hashOutput"
+            Write-Indented "Hash Output:  $hashOutput"
 
             # $newPath = "$baseDirPath\queue\$hashOutput.dcm"
             
