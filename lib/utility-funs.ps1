@@ -147,7 +147,7 @@ function File-IsTooFresh {
 #################################################################################################################################################
 # Reject-File
 #################################################################################################################################################
-function Reject-File {
+function Reject-File {
     param (
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]$File,
@@ -159,10 +159,20 @@ function File-IsTooFresh {
         Remove-Item -Path $file.FullName
     }
     else {
-        $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $file.Name
+        $rejectedFileName = $File.Name
+        $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $rejectedFileName
+
+        if (Test-Path -Path $rejectedPath) {
+            # name is already taken, make it unique by adding a timestamp.
+            $timestamp        = Get-Date -Format "yyyyMMddHHmmss"
+            $fileBaseName     = [System.IO.Path]::GetFileNameWithoutExtension($File.Name)
+            $fileExtension    = [System.IO.Path]::GetExtension($File.Name)
+            $rejectedFileName = "$fileBaseName-$timestamp$fileExtension"
+            $rejectedPath     = Join-Path -Path $rejectedDirPath -ChildPath $rejectedFileName
+        }
 
         Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
-        MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $RejectedDirPath
+        MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $rejectedPath
     }
 }
 #################################################################################################################################################
