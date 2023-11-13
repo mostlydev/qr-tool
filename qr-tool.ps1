@@ -168,10 +168,8 @@ do {
               -DestinationAE    $global:qrDestinationAE `
               -ServerHost       $global:qrServerHost `
               -ServerPort       $global:qrServerPort `
-              -ServerAE         $global:qrServerAE
-              -MyAE             $global:myAE `
-            
-
+              -ServerAE         $global:qrServerAE `
+              -MyAE             $global:myAE
             
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
