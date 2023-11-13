@@ -122,3 +122,47 @@ function Require-NuGetPackage {
 #################################################################################################################################################
 
 
+#################################################################################################################################################
+# File-IsTooFresh
+#################################################################################################################################################
+function File-IsTooFresh {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File
+    )
+
+    $lastWriteTime = $file.LastWriteTime
+    $timeDiff      = (Get-Date) - $lastWriteTime
+    $result        = ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds)
+
+    if ($result) {
+        Write-Indented "$($file.Name) is too fresh."
+    }
+    
+    return $result
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
+# Reject-File
+#################################################################################################################################################
+function Reject-File {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File,
+        [Parameter(Mandatory = $true)]
+        [string]$RejectedDirPath 
+    )
+    if ($global:rejectByDeleting) {
+        Write-Indented "Rejecting $($file.FullName) by deleting it."        
+        Remove-Item -Path $file.FullName
+    }
+    else {
+        $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $file.Name
+
+        Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
+        MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $RejectedDirPath
+    }
+}
+#################################################################################################################################################

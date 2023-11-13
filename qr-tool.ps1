@@ -11,57 +11,13 @@
 $global:sleepSeconds             = 0 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
 $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
-$global:rejectByDeleting         = $true
+$global:rejectByDeleting         = $false
 #================================================================================================================================================
 $global:qrServerAE               = "HOROS"
 $global:qrServerHost             = "localhost"
 $global:qrServerPort             = 2763
 $global:qrDestAE                 = "FLUXTEST1AB"
 $global:myAE                     = "QR-TOOL"
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# File-IsTooFresh
-#################################################################################################################################################
-function File-IsTooFresh {
-    param (
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$File
-    )
-
-    $lastWriteTime = $file.LastWriteTime
-    $timeDiff      = (Get-Date) - $lastWriteTime
-    $result        = ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds)
-
-    if ($result) {
-        Write-Indented "$($file.Name) is too fresh."
-    }
-    
-    return $result
-}
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# Reject-File
-#################################################################################################################################################
-function Reject-File {
-    param (
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$File
-    )
-    if ($global:rejectByDeleting) {
-        Write-Indented "Rejecting $($file.FullName) by deleting it."        
-        Remove-Item -Path $file.FullName
-    }
-    else {
-        $rejectedPath = Join-Path -Path $rejectedDirPath -ChildPath $file.Name
-
-        Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
-        StripPixelDataFromLargeFileAndMoveTo-Path -File $file -Destination $rejectedPath
-    }
-}
 #################################################################################################################################################
 
 
@@ -276,7 +232,7 @@ do {
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
             } else {
                 Write-Indented "Item for hash $studyHash already exists in one of our directories as $foundFile, rejecting."
-                Reject-File -File $file
+                Reject-File -File $file -RejectedDirPath $rejectedStoredItemsDirPath
             }
             
             Outdent
