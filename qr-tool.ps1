@@ -177,6 +177,8 @@ do {
 
             Write-Indented "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
             
+            Indent
+            
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
@@ -221,6 +223,8 @@ do {
             #   Remove-Item -Path $file.FullName
             # }
             # $processedHashes[$hash] = $true
+
+            Outdent
         }
         ##########################################################################################################################
     }
