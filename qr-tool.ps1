@@ -1,8 +1,8 @@
 #################################################################################################################################################
 # Include required function libs.
 #################################################################################################################################################
-# These included files also depend on each other and on globals defined here, so removing any of them is likely to cause problems:
-# they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
+# These included files depend on each other and on globals defined here, so removing any of them is likely to cause problems: the are just being
+# used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
 #################################################################################################################################################
