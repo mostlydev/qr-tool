@@ -24,29 +24,6 @@ $global:myAE                     = "QR-TOOL"
 
 
 #################################################################################################################################################
-# MoveStudyBy-StudyInstanceUID: THIS NEEDS TO BECOME A Cmdlet THAT HAS A SENSIBLE RETURN VALUE!
-#################################################################################################################################################
-function MoveStudyBy-StudyInstanceUID {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$StudyInstanceUID
-    )
-
-    Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
-    
-    $request = New-Object Dicom.Network.DicomCMoveRequest($global:qrDestAE, $StudyInstanceUID)
-    $client  = New-Object Dicom.Network.Client.DicomClient($global:qrServerHost, $global:qrServerPort, $false, $global:myAE, $global:qrServerAE)    
-    $null    = $client.AddRequestAsync($request).GetAwaiter().GetResult()    
-    $task    = $client.SendAsync()
-    
-    $task.Wait()
-
-    Write-Host " done."
-}
-#################################################################################################################################################
-
-
-#################################################################################################################################################
 # Set up packages
 #################################################################################################################################################
 $packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
