@@ -8,6 +8,7 @@
 $global:sleepSeconds             = 0 # 3 # if greater than 0, script loops, sleeping $global:sleepSeconds seconds each time.
 $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
+$global:rejectByDeleting         = $true
 ##################################################################################################################################
 
 
@@ -197,11 +198,13 @@ $inboundDirPath          = Join-Path -Path $global:scriptHomeDirPath  -ChildPath
 $queuedDirPath           = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "queued"
 $outboundRequestsDirPath = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "outbound-requests"
 $sentRequestsDirPath     = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "sent-requests"
+$rejectedDirPath         = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "rejected"
 #=================================================================================================================================
 Require-DirectoryExists -DirectoryPath $inboundDirPath # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $queuedDirPath           -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $outboundRequestsDirPath -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $sentRequestsDirPath     -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $rejectedDirPath         -CreateIfNotExists $true
 ##################################################################################################################################
 
 
@@ -251,6 +254,15 @@ do {
 
             Write-Indented "Hash Output:  $hashOutput"
 
+            $possibleQueuedPath          = Join-Path -Path $queuedDirPath           -ChildPath "$hashOutput.dcm"
+            $possibleOutboundRequestPath = Join-Path -Path $outboundRequestsDirPath -ChildPath "$hashOutput.dcm"
+            $possibleSentRequestPath     = Join-Path -Path $sentRequestsDirPath     -ChildPath "$hashOutput.dcm"
+
+            Write-Indented "Queued Path:           $possibleQueuedPath"
+            Write-Indented "Outbound Request Path: $possibleOutboundRequestPath"
+            Write-Indented "Sent Request Path:     $possibleSentRequestPath"
+#            Write-Indented "Sent Requests Path: $possibleSentRequestsPath"
+            
             # $newPath = "$baseDirPath\queue\$hashOutput.dcm"
             
             # if (-not $processedHashes.ContainsKey($hash) -and -not (Test-Path $newPath)) {
