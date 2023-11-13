@@ -67,18 +67,18 @@ $null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
 ######################################################################################################################################################
 do {
     ##################################################################################################################################################
-    # Pass #1/2: Examine files in $global:incomingStoredItemsDirPath and either accept them by moving them to $global:queuedStoredItemsDirPath or
+    # Stage #1/2: Examine files in $global:incomingStoredItemsDirPath and either accept them by moving them to $global:queuedStoredItemsDirPath or
     #            reject them.
     ##################################################################################################################################################
     
     $filesInIncomingStoredItemsDir = Get-ChildItem -Path $global:incomingStoredItemsDirPath -Filter *.dcm
 
     if ($filesInIncomingStoredItemsDir.Count -eq 0) {
-        Write-Indented "Pass #1: No DCM files found in incomingStoredItemsDir."
+        Write-Indented "Stage #1: No DCM files found in incomingStoredItemsDir."
     } else {
         $counter = 0
         
-        Write-Indented "Pass #1: Found $($filesInIncomingStoredItemsDir.Count) files in incomingStoredItems."
+        Write-Indented "Stage #1: Found $($filesInIncomingStoredItemsDir.Count) files in incomingStoredItems."
 
         Indent
         
@@ -125,21 +125,21 @@ do {
         ##############################################################################################################################################
 
         Outdent
-    } # Pass #1/2
+    } # Stage #1/2
     ##################################################################################################################################################
 
     ##################################################################################################################################################
-    # Pass #2/2: Examine files in $global:queuedStoredItemsDirPath, issue move requests for them and then move them to $processedStoredItemsPath.
+    # Stage #2/2: Examine files in $global:queuedStoredItemsDirPath, issue move requests for them and then move them to $processedStoredItemsPath.
     ##################################################################################################################################################
 
     $filesInQueuedStoredItemsDir = Get-ChildItem -Path $global:queuedStoredItemsDirPath -Filter *.dcm
 
     if ($filesInQueuedStoredItemsDir.Count -eq 0) {
-        Write-Indented "Pass #2: No DCM files found in queuedStoredItems."
+        Write-Indented "Stage #2: No DCM files found in queuedStoredItems."
     } else {
         $counter = 0
         
-        Write-Indented "Pass #2: Found $($filesInQueuedStoredItemsDir.Count) files in queuedStoredItems."
+        Write-Indented "Stage #2: Found $($filesInQueuedStoredItemsDir.Count) files in queuedStoredItems."
 
         Indent
         
@@ -165,11 +165,11 @@ do {
         ##############################################################################################################################################
         
         Outdent
-    } # Pass #2/2
+    } # Stage #2/2
     ##################################################################################################################################################
     
     ##################################################################################################################################################
-    # All passes complete, maybe sleep and loop, otherwise fall through and exit.
+    # All stagees complete, maybe sleep and loop, otherwise fall through and exit.
     ##################################################################################################################################################
     if ($global:sleepSeconds -gt 0) {
         Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
