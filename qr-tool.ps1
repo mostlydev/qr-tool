@@ -127,6 +127,24 @@ function Require-NuGetPackage {
 
 
 ##################################################################################################################################
+function File-IsTooFresh {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo]$File
+    )
+
+    $lastWriteTime = $file.LastWriteTime
+    $timeDiff      = (Get-Date) - $lastWriteTime
+    $result        = ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds)
+
+    Write-Indented "$($file.Name) is too fresh."
+                
+    return $result
+}
+##################################################################################################################################
+
+
+##################################################################################################################################
 function Reject-File {
     param (
         [Parameter(Mandatory = $true)]
@@ -257,9 +275,7 @@ do {
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
-            if ($timeDiff.TotalSeconds -lt $global:mtimeThresholdSeconds) {
-                Write-Indented "$($file.Name) is too new, skipping it for now."
-                
+            if (File-IsTooFresh -File $file) {
                 continue
             }
 
