@@ -248,11 +248,11 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
 ##################################################################################################################################
 # Set up packages
 ##################################################################################################################################
-$packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath  -ChildPath "packages"
+$packagesDirPath        = Join-Path -Path $global:scriptHomeDirPath   -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
 $foDicomVersion         = "4.0.8"
-$foDicomDirPath         = Join-Path -Path $packagesDirPath -ChildPath "$foDicomName.$foDicomVersion"
-$foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath  -ChildPath "lib\net45\Dicom.Core.dll"
+$foDicomDirPath         = Join-Path -Path $packagesDirPath            -ChildPath "$foDicomName.$foDicomVersion"
+$foDicomExpectedDllPath = Join-Path -Path $foDicomDirPath             -ChildPath "lib\net45\Dicom.Core.dll"
 #=================================================================================================================================
 Require-NuGetPackage `
 -PackageName $foDicomName `
@@ -286,19 +286,19 @@ do {
     # Pass #1/2: Examine files in $inboundDirPath and either accept them by moving them to $quedDirPath or reject them.
     ##############################################################################################################################
     
-    $filesInInbound = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
+    $filesInInboundDir = Get-ChildItem -Path $inboundDirPath -Filter *.dcm
 
-    if ($filesInInbound.Count -eq 0) {
+    if ($filesInInboundDir.Count -eq 0) {
         Write-Indented "No DCM files found in inbound."
     } else {
         $counter = 0
         
-        Write-Indented "Found $($filesInInbound.Count) files in inbound."
+        Write-Indented "Found $($filesInInboundDir.Count) files in inbound."
         
-        foreach ($file in $filesInInbound) {
+        foreach ($file in $filesInInboundDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInInbound.Count) '$($file.Name)'..."
+            Write-Indented "Processing file #$counter/$($filesInInboundDir.Count) '$($file.Name)'..."
             
             Indent
             
@@ -354,7 +354,25 @@ do {
     # Pass #2/2: Examine files in $queuedDirPath, issue move requests for them and then move them to $sentRequestsPath.
     ##############################################################################################################################
 
-    # TODO
+    $filesInQueuedDir = Get-ChildItem -Path $queuedDirPath -Filter *.dcm
+
+    if ($filesInQueuedDir.Count -eq 0) {
+        Write-Indented "No DCM files found in queued."
+    } else {
+        $counter = 0
+        
+        Write-Indented "Found $($filesInQueuedDir.Count) files in queued."
+        
+        foreach ($file in $filesInQueuedDir) {
+            $counter++
+
+            Write-Indented "Processing file #$counter/$($filesInQueuedDir.Count) '$($file.Name)'..."
+            
+            Indent
+            
+            Outdent
+        }
+    }
     
     ##############################################################################################################################
     # All passes complete, maybe sleep and loop, otherwise fall through and exit.
