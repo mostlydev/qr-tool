@@ -1,5 +1,5 @@
 #################################################################################################################################################
-# Include required function libs.
+# Include required function libs:
 #################################################################################################################################################
 # These included files depend on each other and on globals defined here, so removing any of them is likely to cause problems: the are just being
 # used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
@@ -9,7 +9,7 @@
 
 
 #################################################################################################################################################
-# Globals meant to be used for configuration purposes, user may change as required.
+# Globals meant to be used for configuration purposes, user may change as required:
 #################################################################################################################################################
 $global:sleepSeconds             = 0 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
 $global:mtimeThreshholdSeconds   = 3
@@ -25,7 +25,7 @@ $global:myAE                     = "QR-TOOL"
 
 
 #################################################################################################################################################
-# Set up packages
+# Set up packages (well, just fo-dicom presently):
 #################################################################################################################################################
 $packagesDirPath        = Join-Path -Path $PSScriptRoot -ChildPath "packages"
 $foDicomName            = "fo-dicom.Desktop"
@@ -38,12 +38,13 @@ Require-NuGetPackage `
 -PackageVersion $foDicomVersion `
 -ExpectedDllPath $foDicomExpectedDllPath `
 -DestinationDir $packagesDirPath
+#================================================================================================================================================
 $null = [Reflection.Assembly]::LoadFile($foDicomExpectedDllPath)
 #################################################################################################################################################
 
 
 #################################################################################################################################################
-# Require some directories
+# Require some directories:
 #################################################################################################################################################
 $cacheDirBasePath            = $PSScriptRoot
 $incomingStoredItemsDirPath  = Join-Path -Path $cacheDirBasePath -ChildPath "incoming-stored-items"
@@ -60,7 +61,7 @@ Require-DirectoryExists -DirectoryPath $rejectedStoredItemsDirPath  -CreateIfNot
 
 
 #################################################################################################################################################
-# Main
+# Main:
 #################################################################################################################################################
 do {
     #############################################################################################################################################
