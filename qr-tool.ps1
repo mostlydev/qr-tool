@@ -6,7 +6,7 @@ $global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDico
 Import-Module $global:foDicomCmdletsDLLPath
 ######################################################################################################################################################
 
-Move-StudyByStudyInstanceUID
+Move-StudyByStudyInstanceUIDSync
 
 Exit
 
