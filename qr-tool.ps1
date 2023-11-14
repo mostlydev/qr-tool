@@ -167,16 +167,18 @@ do {
               -MonthsBack       $global:studyFindMonthsBack
             
             foreach ($response in $studyFindResponses) {
+                Write-Host $response
+                
                 $dataset                 = $dicomFile.Dataset
                 $getSingleValueOrDefault = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
-                $patientName      = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::PatientName,      [string]""))
-                $patientBirthDate = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
-                $studyDate        = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyDate,        [string]""))
-                $modality         = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
-                $studyUID         = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
+                # $studyUID = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
+                # Write-Indented "SUID #1: $studyUID"
 
+                $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
+  
+                Write-Indented "SUID #2: $studyUID"
             }
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
