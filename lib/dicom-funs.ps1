@@ -39,18 +39,7 @@ function GetHashFrom-StudyTags {
         [PSObject]$StudyTags
     )
 
-    # $hashInput     = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
-    $hashInput     = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)"
-
-    Write-Indented "Hash Input: $hashInput"
-
-    $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
-    $hashBytes     = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
-    $hashOutput    = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
-    
-    Write-Indented "Hash Output: $hashOutput"
-
-    return $hashOutput
+    Hash-String -HashInput "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)"
 }
 #################################################################################################################################################
 
