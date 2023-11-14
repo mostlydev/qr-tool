@@ -39,7 +39,8 @@ function GetHashFrom-StudyTags {
         [PSObject]$StudyTags
     )
 
-    $hashInput     = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
+    # $hashInput     = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)-$($StudyTags.Modality)-$($StudyTags.StudyInstanceUID)"
+    $hashInput     = "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)"
 
     Write-Indented "Hash Input: $hashInput"
 
