@@ -67,7 +67,7 @@ function GetHashFrom-StudyTags {
         [PSObject]$StudyTags
     )
 
-    Hash-String -HashInput "$($StudyTags.PatientName)-$($StudyTags.PatientDob)-$($StudyTags.StudyDate)"
+    Hash-String -HashInput "$($StudyTags.PatientName)-$($StudyTags.PatientBirthDate)-$($StudyTags.StudyDate)"
 }
 #################################################################################################################################################
 
@@ -81,7 +81,7 @@ function WriteStudyTags-Indented {
         [PSObject]$StudyTags)
    
     Write-Indented "Patient Name:     $($StudyTags.PatientName)"
-    Write-Indented "Patient DOB:      $($StudyTags.PatientDob)"
+    Write-Indented "Patient DOB:      $($StudyTags.PatientBirthDate)"
     Write-Indented "Study Date:       $($StudyTags.StudyDate)"
     Write-Indented "Modality:         $($StudyTags.Modality)"
     Write-Indented "StudyInstanceUID: $($StudyTags.StudyInstanceUID)"
