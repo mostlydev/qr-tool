@@ -16,6 +16,7 @@ namespace TrivialPatientQuery
     static string QRServerAE { get; set; } = "HOROS";
     static string QRServerHost { get; set; } = "localhost";
     static int QRServerPort { get; set; } = 2763;
+
     static public DicomCFindRequest CreateCFindRequest(string patientName, string birthDate, string modality, int monthsBack)
     {
       if (string.IsNullOrWhiteSpace(patientName) || patientName.Length < 3)
