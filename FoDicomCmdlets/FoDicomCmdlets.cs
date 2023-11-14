@@ -117,11 +117,14 @@ namespace FoDicomCmdlets
       request.OnResponseReceived += (req, response) =>
       {
         responses.Add(response);
-        Console.WriteLine($"Add response with SUID: {response.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID)}");
+        Console.WriteLine($"Add response with SUID {response.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID)} "
+          + $"and status {response.Status}...");
       };
 
       client.AddRequestAsync(request).GetAwaiter().GetResult();
       client.SendAsync().GetAwaiter().GetResult();
+
+      Console.WriteLine($"Return {responses.Count} responses.");
 
       WriteObject(responses);
     }    
