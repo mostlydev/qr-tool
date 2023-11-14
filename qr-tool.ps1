@@ -156,7 +156,7 @@ do {
 
             WriteStudyTags-Indented -StudyTags $tags
 
-            Get-StudiesByPatientNameAndBirthDate `
+            $studyFindResponses = Get-StudiesByPatientNameAndBirthDate `
               -MyAE             $global:myAE `
               -QrServerAE       $global:qrServerAE `
               -QrServerHost     $global:qrServerHost `
@@ -165,9 +165,19 @@ do {
               -PatientBirthDate $tags.PatientBirthDate `
               -Modality         $tags.Modality `
               -MonthsBack       $global:studyFindMonthsBack
-              
-              
+            
+            foreach ($response in $studyFindResponses) {
+                $dataset                 = $dicomFile.Dataset
+                $getSingleValueOrDefault = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
+                $patientName      = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::PatientName,      [string]""))
+                $patientBirthDate = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
+                $studyDate        = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyDate,        [string]""))
+                $modality         = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
+                $studyUID         = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
+
+
+            }
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
             # $lastResponseStatus = $null

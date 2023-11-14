@@ -1,4 +1,32 @@
 #################################################################################################################################################
+# Get-DicomTagString
+#################################################################################################################################################
+function Get-DicomTagString {
+    param (
+        [Parameter(Mandatory = $true)]
+        [Dicom.DicomDataset]$Dataset,
+
+        [Parameter(Mandatory = $true)]
+        [Dicom.DicomTag]$Tag,
+
+        [string]$DefaultValue = ""
+    )
+
+    try {
+        $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+        
+        return $method.Invoke($Dataset, @($Tag, $DefaultValue))
+    }
+    catch {
+        Write-Error "Error extracting DICOM tag value: $_"
+
+        return $DefaultValue
+    }
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
 # Extract-StudyTags
 #################################################################################################################################################
 function Extract-StudyTags {
