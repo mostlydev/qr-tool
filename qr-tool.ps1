@@ -156,6 +156,8 @@ do {
 
             WriteStudyTags-Indented -StudyTags $tags
 
+            Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$($tags.Modality)..."
+            
             $studyFindResponses = Get-StudiesByPatientNameAndBirthDate `
               -MyAE             $global:myAE `
               -QrServerAE       $global:qrServerAE `
@@ -165,20 +167,25 @@ do {
               -PatientBirthDate $tags.PatientBirthDate `
               -Modality         $tags.Modality `
               -MonthsBack       $global:studyFindMonthsBack
+
+            $responseCounter = 0;
             
             foreach ($response in $studyFindResponses) {
-                Write-Host $response
+                $responceCounter++
+
+                Write-Indented "Examine response #$responceCounter/$($studyFindResponses.Count)..."
+                # Write-Host $response
                 
-                $dataset                 = $dicomFile.Dataset
-                $getSingleValueOrDefault = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+                # $dataset                 = $dicomFile.Dataset
+                # $getSingleValueOrDefault = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
-                # $studyUID = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
+                # # $studyUID = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
-                # Write-Indented "SUID #1: $studyUID"
+                # # Write-Indented "SUID #1: $studyUID"
 
-                $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
+                # $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
   
-                Write-Indented "SUID #2: $studyUID"
+                # Write-Indented "SUID #2: $studyUID"
             }
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
