@@ -66,7 +66,7 @@ namespace FoDicomCmdlets
     string PatientName { get; set; }
     
     [Parameter(Mandatory = true)]
-    string BirthDate { get; set; }
+    string PatientBirthDate { get; set; }
     
     [Parameter(Mandatory = true)]
     string Modality { get; set; }
@@ -81,7 +81,7 @@ namespace FoDicomCmdlets
         throw new ArgumentException("Patient name is too short or empty.");
       }
       
-      if (string.IsNullOrWhiteSpace(BirthDate) || BirthDate.Length != 8)
+      if (string.IsNullOrWhiteSpace(PatientBirthDate) || PatientBirthDate.Length != 8)
       {
         throw new ArgumentException("Birth date is not properly formatted (expected format: YYYYMMDD).");
       }
@@ -102,7 +102,7 @@ namespace FoDicomCmdlets
       var startDate = endDate.AddMonths(-MonthsBack).ToString("yyyyMMdd");
       
       request.Dataset.AddOrUpdate(DicomTag.PatientName, PatientName);
-      request.Dataset.AddOrUpdate(DicomTag.PatientBirthDate, BirthDate);
+      request.Dataset.AddOrUpdate(DicomTag.PatientBirthDate, PatientBirthDate);
       request.Dataset.AddOrUpdate(DicomTag.ModalitiesInStudy, Modality);
       request.Dataset.AddOrUpdate(DicomTag.StudyDate, $"{startDate}-{endDate:yyyyMMdd}");
       request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, "");

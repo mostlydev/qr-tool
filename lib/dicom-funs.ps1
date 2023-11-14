@@ -7,19 +7,19 @@
         [System.IO.FileInfo]$File
     )
 
-    $dicomFile   = [Dicom.DicomFile]::Open($File.FullName)
-    $dataset     = $dicomFile.Dataset
-    $method      = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+    $dicomFile        = [Dicom.DicomFile]::Open($File.FullName)
+    $dataset          = $dicomFile.Dataset
+    $method           = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
-    $patientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName,      [string]""))
-    $patientDob  = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
-    $studyDate   = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate,        [string]""))
-    $modality    = $method.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
-    $studyUID    = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
+    $patientName      = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName,      [string]""))
+    $patientBirthDate = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
+    $studyDate        = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate,        [string]""))
+    $modality         = $method.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
+    $studyUID         = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
     $result      = New-Object PSObject -Property @{
         PatientName      = $patientName
-        PatientDob       = $patientDob
+        PatientBirthDate = $patientBirthDate
         StudyDate        = $studyDate
         Modality         = $modality
         StudyInstanceUID = $studyUID

@@ -100,9 +100,9 @@ do {
 
             # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
             # another appointment in the future a new hash will be generated.
-            $studyHash                        = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
-            $possibleQueuedStoredItemsPath    = Join-Path -Path $global:queuedStoredItemsDirPath    -ChildPath "$studyHash.dcm"
-            $possibleProcessedStoredItemsPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath "$studyHash.dcm"
+            $studyHash                        = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
+            $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath "$studyHash.dcm"
+            $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath "$studyHash.dcm"
 
             $foundFile = $null
 
@@ -153,35 +153,43 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
+
+            Get-StudiesByPatientNameAndBirthDate `
+              -MyAE         $global:myAE `
+              -QrServerAE   $global:qrServerAE `
+              -QrServerHost $global:qrServerHost `
+              -QrServerPost $global:qrServerPort `
+              -PatientName  $tags.PatientName
+
             
-            $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
-            $lastResponseStatus = $null
+            # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
+            # $lastResponseStatus = $null
 
-            if ($moveResponses -and $moveResponses.Count -gt 0) {
-                $lastResponseStatus = $moveResponses[-1].Status
-            } else {
-                Write-Indented "No responses received"
-            }
+            # if ($moveResponses -and $moveResponses.Count -gt 0) {
+            #     $lastResponseStatus = $moveResponses[-1].Status
+            # } else {
+            #     Write-Indented "No responses received"
+            # }
             
-            if ($lastResponseStatus -eq [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "The last response appears to have been successful."
-            } elseif ($lastResponseStatus -eq $null) {
-                Write-Indented "The last response remains null. This is unusual."
-            } else {
-                Write-Indented "The last response appears not to have been successful. Status: $($lastResponseStatus)"
-            }
+            # if ($lastResponseStatus -eq [Dicom.Network.DicomStatus]::Success) {
+            #     Write-Indented "The last response appears to have been successful."
+            # } elseif ($lastResponseStatus -eq $null) {
+            #     Write-Indented "The last response remains null. This is unusual."
+            # } else {
+            #     Write-Indented "The last response appears not to have been successful. Status: $($lastResponseStatus)"
+            # }
 
-            if ($lastResponseStatus -ne [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "Since move does not appear to have succeeded, $($file.FullName) will be deleted so as to allow future move attempts of the same hash."
+            # if ($lastResponseStatus -ne [Dicom.Network.DicomStatus]::Success) {
+            #     Write-Indented "Since move does not appear to have succeeded, $($file.FullName) will be deleted so as to allow future move attempts of the same hash."
 
-                Remove-Item -Path $file.FullName
-            }
-            else {
-                $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
+            #     Remove-Item -Path $file.FullName
+            # }
+            # else {
+            #     $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
-                Write-Indented "Moving $($file.FullName) to $processedStoredItemPath"
-                Move-Item -Path $File.FullName -Destination $processedStoredItemPath
-            }
+            #     Write-Indented "Moving $($file.FullName) to $processedStoredItemPath"
+            #     Move-Item -Path $File.FullName -Destination $processedStoredItemPath
+            # }
             
             Outdent
         } # foreach $file
