@@ -174,6 +174,15 @@ do {
                 $responceCounter++
 
                 Write-Indented "Examine response #$responceCounter/$($studyFindResponses.Count)..."
+
+                Indent
+                
+                if ($response.Dataset -eq $null) {
+                    Write-Indented "Response has no dataset."
+                }
+                else {
+                    Write-Indented "Response has a dataset."
+                }
                 # Write-Host $response
                 
                 # $dataset                 = $dicomFile.Dataset
@@ -185,7 +194,9 @@ do {
 
                 # $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
   
-                # Write-Indented "SUID #2: $studyUID"
+                    # Write-Indented "SUID #2: $studyUID"
+                    Outdent
+                    
             }
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
