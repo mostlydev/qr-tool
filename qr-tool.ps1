@@ -199,7 +199,7 @@ do {
                 $dataset  = $response.Dataset
                 $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
 
-                Write-Indented "SUID #2: $studyUID"
+                Write-Indented "SUID: $studyUID"
 
                 Outdent
                 
