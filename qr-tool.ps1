@@ -39,6 +39,8 @@ $global:qrServerAE               = "HOROS"
 $global:qrServerHost             = "localhost"
 $global:qrServerPort             = 2763
 $global:qrDestinationAE          = "FLUXTEST1AB"
+#=====================================================================================================================================================
+$global:studyFindMonthsBack      = 60
 ######################################################################################################################################################
 
 
@@ -155,11 +157,16 @@ do {
             WriteStudyTags-Indented -StudyTags $tags
 
             Get-StudiesByPatientNameAndBirthDate `
-              -MyAE         $global:myAE `
-              -QrServerAE   $global:qrServerAE `
-              -QrServerHost $global:qrServerHost `
-              -QrServerPost $global:qrServerPort `
-              -PatientName  $tags.PatientName
+              -MyAE             $global:myAE `
+              -QrServerAE       $global:qrServerAE `
+              -QrServerHost     $global:qrServerHost `
+              -QrServerPort     $global:qrServerPort `
+              -PatientName      $tags.PatientName `
+              -PatientBirthDate $tags.PatientBirthDate `
+              -Modality         $tags.Modality `
+              -MonthsBack       $global:studyFindMonthsBack
+              
+              
 
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID

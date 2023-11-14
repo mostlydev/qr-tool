@@ -63,16 +63,16 @@ namespace FoDicomCmdlets
     public int QrServerPort { get; set; }
 
     [Parameter(Mandatory = true)]
-    string PatientName { get; set; }
+    public string PatientName { get; set; }
     
     [Parameter(Mandatory = true)]
-    string PatientBirthDate { get; set; }
+    public string PatientBirthDate { get; set; }
     
     [Parameter(Mandatory = true)]
-    string Modality { get; set; }
+    public string Modality { get; set; }
     
     [Parameter(Mandatory = true)]
-    int MonthsBack { get; set; }
+    public int MonthsBack { get; set; }
     
     protected override void ProcessRecord()
     {
