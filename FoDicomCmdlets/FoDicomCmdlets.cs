@@ -117,8 +117,16 @@ namespace FoDicomCmdlets
       request.OnResponseReceived += (req, response) =>
       {
         responses.Add(response);
-        Console.WriteLine($"Add response with SUID {response.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID)} "
-          + $"and status {response.Status}...");
+
+        if (response.Dataset is null)
+        {
+          Console.WriteLine($"Add response with no dataset.");
+        }
+        else
+        {
+          Console.WriteLine($"Add response with SUID {response.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID)} "
+            + $"and status {response.Status}...");
+        }
       };
 
       client.AddRequestAsync(request).GetAwaiter().GetResult();
