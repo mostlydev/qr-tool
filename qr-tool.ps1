@@ -158,7 +158,7 @@ do {
 
             Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$($tags.Modality)..."
             
-            $studyFindResponses = Get-StudiesByPatientNameAndBirthDate `
+            $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
               -MyAE             $global:myAE `
               -QrServerAE       $global:qrServerAE `
               -QrServerHost     $global:qrServerHost `
@@ -168,35 +168,41 @@ do {
               -Modality         $tags.Modality `
               -MonthsBack       $global:studyFindMonthsBack
 
+            if ($cFindResponses -eq $null -or $cFindResponses.Count -eq 0) {
+                Write-Indented "No responses (or null responses) received. This is unusual. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Remove-Item -Path $file.FullName
+
+                Continue
+            }
+
+            $status = $cFindResponses[-1]
+            $cFindResponses = $cFindResponses[0..($cFindResponses.Count - 2)]
+
+            if ($status.Status -ne [Dicom.Network.DicomStatus]::Success) {
+                Write-Indented "Final response status was $($status.Statua). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Remove-Item -Path $file.FullName
+
+                Continue
+            }
+
+            Write-Indented "The C-Find query was successful."
+
             $responseCounter = 0;
             
-            foreach ($response in $studyFindResponses) {
+            foreach ($response in $cFindResponses) {
                 $responceCounter++
 
-                Write-Indented "Examine response #$responceCounter/$($studyFindResponses.Count)..."
+                Write-Indented "Examine response #$responceCounter/$($cFindResponses.Count)..."
 
                 Indent
+                                
+                $dataset  = $response.Dataset
+                $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
+
+                Write-Indented "SUID #2: $studyUID"
+
+                Outdent
                 
-                if ($response.Dataset -eq $null) {
-                    Write-Indented "Response has no dataset."
-                }
-                else {
-                    Write-Indented "Response has a dataset."
-                }
-                # Write-Host $response
-                
-                # $dataset                 = $dicomFile.Dataset
-                # $getSingleValueOrDefault = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
-
-                # # $studyUID = $getSingleValueOrDefault.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
-
-                # # Write-Indented "SUID #1: $studyUID"
-
-                # $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
-  
-                    # Write-Indented "SUID #2: $studyUID"
-                    Outdent
-                    
             }
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
@@ -227,24 +233,24 @@ do {
             #     Write-Indented "Moving $($file.FullName) to $processedStoredItemPath"
             #     Move-Item -Path $File.FullName -Destination $processedStoredItemPath
             # }
-            
-            Outdent
-        } # foreach $file
-        ##############################################################################################################################################
         
         Outdent
-    } # Stage #2/2
-    ##################################################################################################################################################
+    } # foreach $file
+    ##############################################################################################################################################
     
-    ##################################################################################################################################################
-    # All stagees complete, maybe sleep and loop, otherwise fall through and exit.
-    ##################################################################################################################################################
-    if ($global:sleepSeconds -gt 0) {
-        Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
-        Start-Sleep -Seconds $global:sleepSeconds
-        Write-Host " done."
-    }
-    ##################################################################################################################################################
+    Outdent
+} # Stage #2/2
+##################################################################################################################################################
+
+##################################################################################################################################################
+# All stagees complete, maybe sleep and loop, otherwise fall through and exit.
+##################################################################################################################################################
+if ($global:sleepSeconds -gt 0) {
+    Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
+    Start-Sleep -Seconds $global:sleepSeconds
+    Write-Host " done."
+}
+##################################################################################################################################################
 } while ($global:sleepSeconds -gt 0)#
 ######################################################################################################################################################
 Write-Indented "Done."
