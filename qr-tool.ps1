@@ -97,8 +97,10 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-            
-            $studyHash                        = GetHashFrom-StudyTags -StudyTags $tags 
+
+            # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
+            # another appointment in the future a new hash will be generated.
+            $studyHash                        = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientDob)-$($tags.StudyDate)"
             $possibleQueuedStoredItemsPath    = Join-Path -Path $global:queuedStoredItemsDirPath    -ChildPath "$studyHash.dcm"
             $possibleProcessedStoredItemsPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath "$studyHash.dcm"
 
