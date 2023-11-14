@@ -47,7 +47,7 @@ namespace FoDicomCmdlets
     }
   }
 
-  [Cmdlet("Get", "StudiesByPatientNameAndBirthdate")]
+  [Cmdlet("Get", "StudiesByPatientNameAndBirthDate")]
   public class GetStudiesByPatientNameAndBirtdate : Cmdlet
   {
     [Parameter(Mandatory = true)]
