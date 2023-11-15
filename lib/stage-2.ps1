@@ -2,7 +2,7 @@
 # Do-Stage2: Examine files in $global:queuedStoredItemsDirPath, create move request tickets in $global:queuedStudyMovesDirPath in for them and then 
 #            move them to queued stored item to $processedStoredItemsPath.
 ######################################################################################################################################################
-function Do-Stage1 {
+function Do-Stage2 {
     Write-Indented " " # Just print a newline for output readability.    
 
     $filesInQueuedStoredItemsDir = Get-ChildItem -Path $global:queuedStoredItemsDirPath -Filter *.dcm
