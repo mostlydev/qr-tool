@@ -18,6 +18,7 @@ $global:mtimeThreshholdSeconds     = 3
 $global:largeFileThreshholdBytes   = 50000
 $global:rejectByDeleting           = $true
 #   and moved.
-######################################################################################################################################################
+#=====================================================================================================================================================
+$global:cacheDirBasePath           = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
 $global:incomingStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath "incoming-stored-items"
 ######################################################################################################################################################

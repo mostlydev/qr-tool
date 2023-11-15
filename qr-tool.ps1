@@ -2,8 +2,6 @@
 # Generate some directory paths. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if 
 # they felt like it.
 ######################################################################################################################################################
-$global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
-#=====================================================================================================================================================
 # Stored items and their sentinels:
 $global:queuedStoredItemsDirName    = "queued-stored-items"
 $global:processedStoredItemsDirName = "processed-stored-items"
