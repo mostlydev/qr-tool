@@ -101,6 +101,7 @@ do {
     # All stagees complete, maybe sleep and loop, otherwise fall through and exit.
     ##################################################################################################################################################
     if ($global:sleepSeconds -gt 0) {
+        Write-Indented " " # Just print a newline for output readability.
         Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
         Start-Sleep -Seconds $global:sleepSeconds
         Write-Host " done."
