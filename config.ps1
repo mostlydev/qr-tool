@@ -18,5 +18,3 @@ $global:mtimeThreshholdSeconds   = 3
 $global:largeFileThreshholdBytes = 50000
 $global:rejectByDeleting         = $true
 ######################################################################################################################################################
-
-
