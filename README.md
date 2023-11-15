@@ -4,4 +4,4 @@ A script for automating pre-fetching studies by automatically performing find an
 
 ### Build notes:
 
-Prior to runninig qr-tool.ps1, build the FoDicomCmdlets solution in Release mode as the script will need to make use of both the DLL it will build and the copy of fo-dicom that it will install's DLL.
+Prior to runninig qr-tool.ps1, build the FoDicomCmdlets solution in Release mode as the script will need to make use of both the DLL it will build and the DLL of the copy of fo-dicom that the solution will install in its packages folder.
