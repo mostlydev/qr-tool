@@ -109,7 +109,7 @@ do {
         foreach ($file in $filesInIncomingStoredItemsDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInIncomingStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)'..."
+            Write-Indented "Processing file #$counter/$($filesInIncomingStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
             
             Indent
             
@@ -170,7 +170,7 @@ do {
         foreach ($file in $filesInQueuedStoredItemsDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)'..."
+            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
             
             Indent
             
@@ -276,6 +276,12 @@ do {
         Indent
         
         foreach ($file in $filesInQueuedStudyMovesDir) {
+            $counter++
+            
+            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
+            
+            Indent
+
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
             # $lastResponseStatus = $null
 
