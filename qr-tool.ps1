@@ -1,41 +1,6 @@
 ######################################################################################################################################################
-# Include FoDicomCmdlets:
-######################################################################################################################################################
-$global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets\bin\Release\FoDicomCmdlets.dll"
-#=====================================================================================================================================================
-Import-Module $global:foDicomCmdletsDLLPath
-######################################################################################################################################################
-
-
-######################################################################################################################################################
-# Set up packages (well, just fo-dicom presently, shared with FoDicomCmdlets):
-######################################################################################################################################################
-$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/bin/Release/Dicom.Core.dll"
-$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
-######################################################################################################################################################
-
-
-######################################################################################################################################################
-# Include required function libs:
-######################################################################################################################################################
-# These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
-# they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
-#=====================================================================================================================================================
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-1.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-2.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-3.ps1")
-######################################################################################################################################################
-
-
-######################################################################################################################################################
 # Globals meant to be used for configuration purposes, user may change as required:
 ######################################################################################################################################################
-$global:sleepSeconds             = 0 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
-$global:mtimeThreshholdSeconds   = 3
-$global:largeFileThreshholdBytes = 50000
-$global:rejectByDeleting         = $true
 $global:myAE                     = "QR-TOOL"
 #=====================================================================================================================================================
 $global:qrServerAE               = "HOROS"
@@ -44,6 +9,11 @@ $global:qrServerPort             = 2763
 $global:qrDestinationAE          = "FLUXTEST1AB"
 #=====================================================================================================================================================
 $global:studyFindMonthsBack      = 60
+#=====================================================================================================================================================
+$global:sleepSeconds             = 3 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
+$global:mtimeThreshholdSeconds   = 3
+$global:largeFileThreshholdBytes = 50000
+$global:rejectByDeleting         = $true
 ######################################################################################################################################################
 
 
@@ -74,6 +44,37 @@ $global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -
 
 
 ######################################################################################################################################################
+# Include FoDicomCmdlets DLL:
+######################################################################################################################################################
+$global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets\bin\Release\FoDicomCmdlets.dll"
+#=====================================================================================================================================================
+Import-Module $global:foDicomCmdletsDLLPath
+######################################################################################################################################################
+
+
+######################################################################################################################################################
+# Set up packages (well, just fo-dicom presently, shared with FoDicomCmdlets):
+######################################################################################################################################################
+$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/bin/Release/Dicom.Core.dll"
+$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
+######################################################################################################################################################
+
+
+######################################################################################################################################################
+# Include required function libs:
+######################################################################################################################################################
+# These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
+# they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
+#=====================================================================================================================================================
+. (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
+. (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
+. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-1.ps1")
+. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-2.ps1")
+. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-3.ps1")
+######################################################################################################################################################
+
+
+######################################################################################################################################################
 # Require some directories:
 ######################################################################################################################################################
 Require-DirectoryExists -DirectoryPath $global:cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
@@ -92,9 +93,9 @@ Require-DirectoryExists -DirectoryPath $global:processedStudyMovesDirPath  -Crea
 # Main:
 ######################################################################################################################################################
 do {
-    Do-Stage1
-    Do-Stage2
-    Do-Stage3
+    Do-Stage1 # examine incoming stored files and enqueue them if not already processed.
+    Do-Stage2 # examine queued stored files, find studies for the patient create move requests for them if not already moved.
+    Do-Stage3 # examine queued move requests and move those studies.
     
     ##################################################################################################################################################
     # All stagees complete, maybe sleep and loop, otherwise fall through and exit.

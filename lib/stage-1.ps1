@@ -47,11 +47,15 @@ function Do-Stage1 {
             if ($foundFile -eq $null) {
                 $queuedStoredItemPath = Join-Path -Path $global:queuedStoredItemsDirPath -ChildPath $hashedFileName
 
-                Write-Indented "Enqueuing $($file.Name) as $hashedFilename..." -NoNewLine
+                Write-Indented "Enqueuing $($file.Name) as $hashedFilename..."
+
+                Indent
 
                 $null = MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $queuedStoredItemPath
+
+                Outdent
                 
-                Write-Indented " done."
+                Write-Indented "... done."
             } else {
                 Write-Indented "Item for hash $studyHash already exists as $(Trim-BasePath -Path $foundFile), rejecting."
                 Reject-File -File $file -RejectedDirPath $global:rejectedStoredItemsDirPath
