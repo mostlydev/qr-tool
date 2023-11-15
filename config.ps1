@@ -20,5 +20,7 @@ $global:rejectByDeleting           = $true
 #   and moved.
 #=====================================================================================================================================================
 $global:cacheDirBasePath           = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
+# ^ This directory must be writable as the script will create subdirectories in it and files within them.
 $global:incomingStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath "incoming-stored-items"
+# ^ The user could place this folder elsewhere. It must be writable and must exist: it will not be created automatically by the script.
 ######################################################################################################################################################
