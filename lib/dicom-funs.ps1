@@ -108,7 +108,7 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
             $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
             
             $dicomFile.Save($File.FullName)
-            Write-Indented "Pixel Data stripped from $($File.Name) before moving it to $Destination."
+            Write-Indented "Pixel Data stripped from $($File.Name) before moving it to $(Trim-BasePath -Path $Destination)."
         }
     }
     

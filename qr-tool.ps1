@@ -109,7 +109,7 @@ do {
         foreach ($file in $filesInIncomingStoredItemsDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInIncomingStoredItemsDir.Count) '$($file.FullName)'..."
+            Write-Indented "Processing file #$counter/$($filesInIncomingStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)'..."
             
             Indent
             
@@ -126,30 +126,18 @@ do {
             
             # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
             # another appointment in the future a new hash will be generated.
-            $studyHash                        = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
+            $studyHash      = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
 
             Write-Indented " " # Just print a newline for output readability.
 
-            $hashedFileName                   = "$studyHash.dcm"
-
-            # $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath $hashedFileName
-            # $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath $hashedFilename
-
-            # $foundFile = $null
-
-            # if (Test-Path -Path $possibleQueuedStoredItemsPath) {
-            #     $foundFile = $possibleQueuedStoredItemsPath
-            # } elseif (Test-Path -Path $possibleProcessedStoredItemsPath) {
-            #     $foundFile = $possibleProcessedStoredItemsPath
-            # }
-
-            $foundFile = Find-FileInDirectories -Filename $hashedFilename -Directories @($global:queuedStoredItemsDirPath, $global:processedStoredItemsDirPath)
+            $hashedFileName = "$studyHash.dcm"
+            $foundFile      = Find-FileInDirectories -Filename $hashedFilename -Directories @($global:queuedStoredItemsDirPath, $global:processedStoredItemsDirPath)
              
             if ($foundFile -eq $null) {                
                 Write-Indented "Enqueuing $($file.Name) as $hashedFilename."
-                MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
+                MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination (Join-Path -Path $global:queuedStoredItemsDirPath -ChildPath $hashedFileName)
             } else {
-                Write-Indented "Item for hash $studyHash already exists as $foundFile, rejecting."
+                Write-Indented "Item for hash $studyHash already exists as $(Trim-BasePath -Path $foundFile), rejecting."
                 Reject-File -File $file -RejectedDirPath $global:rejectedStoredItemsDirPath
             }
             
@@ -181,7 +169,7 @@ do {
         foreach ($file in $filesInQueuedStoredItemsDir) {
             $counter++
 
-            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$($file.FullName)'..."
+            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)'..."
             
             Indent
             

@@ -160,7 +160,7 @@ function Reject-File {
         [string]$RejectedDirPath 
     )
     if ($global:rejectByDeleting) {
-        Write-Indented "Rejecting $($file.FullName) by deleting it."        
+        Write-Indented "Rejecting $(Trim-BasePath -Path $file.FullName) by deleting it."        
         Remove-Item -Path $file.FullName
     }
     else {
@@ -176,7 +176,7 @@ function Reject-File {
             $rejectedPath     = Join-Path -Path $rejectedDirPath -ChildPath $rejectedFileName
         }
 
-        Write-Indented "Rejecting $($file.FullName) by moving it to $rejectedPath"
+        Write-Indented "Rejecting $(Trim-BasePath -Path $file.FullName) by moving it to $rejectedPath"
         MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $rejectedPath
     }
 }
@@ -244,3 +244,25 @@ function Find-FileInDirectories {
     return $null
 }
 #################################################################################################################################################
+
+
+#################################################################################################################################################
+# Trim-BasePath
+#################################################################################################################################################
+function Trim-BasePath {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [Parameter(Mandatory = $false)]
+        [string]$BasePath = $global:cacheDirBasePath
+    )
+
+    if (-not $BasePath.EndsWith('\')) {
+        $BasePath += '\'
+    }
+
+    return $Path.Replace($BasePath, '')
+}
+#################################################################################################################################################
+
