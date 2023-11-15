@@ -93,9 +93,10 @@ do {
     # Stage #1/2: Examine files in $global:incomingStoredItemsDirPath and either accept them by moving them to $global:queuedStoredItemsDirPath or
     #            reject them.
     ##################################################################################################################################################
+    Write-Indented " " # Just print a newline for output readability.
     
     $filesInIncomingStoredItemsDir = Get-ChildItem -Path $global:incomingStoredItemsDirPath -Filter *.dcm
-
+    
     if ($filesInIncomingStoredItemsDir.Count -eq 0) {
         Write-Indented "Stage #1: No DCM files found in incomingStoredItemsDir."
     } else {
@@ -158,6 +159,7 @@ do {
     # Stage #2/2: Examine files in $global:queuedStoredItemsDirPath, create move request tickets in $global:queuedStudyMovesDirPath in for them and
     #             then move them to queued stored item to $processedStoredItemsPath.
     ##################################################################################################################################################
+    Write-Indented " " # Just print a newline for output readability.    
 
     $filesInQueuedStoredItemsDir = Get-ChildItem -Path $global:queuedStoredItemsDirPath -Filter *.dcm
 
