@@ -264,7 +264,7 @@ do {
     ##################################################################################################################################################
     Write-Indented " " # Just print a newline for output readability.    
 
-    $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.dcm
+    $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.move-request
 
     if ($filesInQueuedStudyMovesDir.Count -eq 0) {
         Write-Indented "Stage #3: No DCM files found in queuedStoredItems."
