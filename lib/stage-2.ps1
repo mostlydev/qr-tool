@@ -47,7 +47,7 @@ function Do-Stage2 {
                 Continue
             }
 
-            $cFindStatus = $cFindResponses[-1]
+            $cFindStatus    = $cFindResponses[-1]
             $cFindResponses = $cFindResponses[0..($cFindResponses.Count - 2)]
 
             if ($cFindStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
