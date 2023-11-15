@@ -1,25 +1,4 @@
 ######################################################################################################################################################
-# Globals meant to be used for configuration purposes, user may change as required:
-######################################################################################################################################################
-$global:myAE                     = "QR-TOOL"
-#=====================================================================================================================================================
-$global:qrServerAE               = "HOROS"
-$global:qrServerHost             = "localhost"
-$global:qrServerPort             = 2763
-$global:qrDestinationAE          = "FLUXTEST1AB"
-#=====================================================================================================================================================
-$global:studyFindMonthsBack      = 60
-$global:studyMoveFixedModality   = $null
-# ^ if $null, studies whose modality matches the stored item's are moved, otherwise studies with this modality are moved.
-#=====================================================================================================================================================
-$global:sleepSeconds             = 3 # if greater than 0 script will loop, sleeping $global:sleepSeconds seconds each time.
-$global:mtimeThreshholdSeconds   = 3
-$global:largeFileThreshholdBytes = 50000
-$global:rejectByDeleting         = $true
-######################################################################################################################################################
-
-
-######################################################################################################################################################
 # Generate some directory paths. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if 
 # they felt like it.
 ######################################################################################################################################################
@@ -68,6 +47,7 @@ $global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDic
 # These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
 # they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
 #=====================================================================================================================================================
+. (Join-Path -Path $PSScriptRoot -ChildPath "config.ps1")
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
 . (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-1.ps1")
