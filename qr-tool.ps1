@@ -130,18 +130,21 @@ do {
 
             Write-Indented " " # Just print a newline for output readability.
 
-            $hashedFilename                   = "$studyHash.dcm"
-            $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath $hashedFilename
-            $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath $hashedFilename
+            $hashedFileName                   = "$studyHash.dcm"
 
-            $foundFile = $null
+            # $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath $hashedFileName
+            # $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath $hashedFilename
 
-            if (Test-Path -Path $possibleQueuedStoredItemsPath) {
-                $foundFile = $possibleQueuedStoredItemsPath
-            } elseif (Test-Path -Path $possibleProcessedStoredItemsPath) {
-                $foundFile = $possibleProcessedStoredItemsPath
-            }
+            # $foundFile = $null
 
+            # if (Test-Path -Path $possibleQueuedStoredItemsPath) {
+            #     $foundFile = $possibleQueuedStoredItemsPath
+            # } elseif (Test-Path -Path $possibleProcessedStoredItemsPath) {
+            #     $foundFile = $possibleProcessedStoredItemsPath
+            # }
+
+            $foundFile = Find-FileInDirectories -Filename $hashedFilename -Directories @($global:queuedStoredItemsDirPath, $global:processedStoredItemsDirPath)
+             
             if ($foundFile -eq $null) {                
                 Write-Indented "Enqueuing $($file.Name) as $hashedFilename."
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
