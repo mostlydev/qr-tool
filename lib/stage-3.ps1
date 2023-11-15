@@ -33,7 +33,7 @@ function Do-Stage3 {
                 Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued study move $($file.FullName)."
                 Remove-Item -Path $file.FullName
 
-                continue
+                Continue
             }
 
             $cMoveStatus    = $cMoveResponses[-1]
