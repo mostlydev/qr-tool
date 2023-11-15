@@ -33,6 +33,8 @@ function Do-Stage3 {
                 Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
                 Remove-Item -Path $file.FullName
 
+                Outdent
+                
                 Continue
             }
 
@@ -43,6 +45,8 @@ function Do-Stage3 {
                 Write-Indented "... C-Move's final response status was $($cMoveStatus.Statua). Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
                 Remove-Item -Path $file.FullName
 
+                Outdent
+                
                 Continue
             }
 
