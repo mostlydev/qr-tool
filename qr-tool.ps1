@@ -123,11 +123,13 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-            Write-Indented " " # Just print a newline for output readability.
             
             # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
             # another appointment in the future a new hash will be generated.
             $studyHash                        = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
+
+            Write-Indented " " # Just print a newline for output readability.
+
             $hashedFilename                   = "$studyHash.dcm"
             $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath $hashedFilename
             $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath $hashedFilename
@@ -144,7 +146,7 @@ do {
                 Write-Indented "Enqueuing $($file.Name) as $hashedFilename."
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
             } else {
-                Write-Indented "Item for hash $studyHash already exists in one of our directories as $foundFile, rejecting."
+                Write-Indented "Item for hash $studyHash already exists as $foundFile, rejecting."
                 Reject-File -File $file -RejectedDirPath $global:rejectedStoredItemsDirPath
             }
             
@@ -183,7 +185,8 @@ do {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-
+            Write-Indented " " # Just print a newline for output readability.
+            
             Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$($tags.Modality)..."
             
             $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
@@ -238,7 +241,7 @@ do {
                     Write-Host " created." 
 
                 } else {
-                    Write-Indented "Ticket already exists at $studyMoveTicketFilePath." -NoNewLine
+                    Write-Indented "Ticket already exists at $studyMoveTicketFilePath."
                 }
 
                 Outdent
@@ -249,6 +252,7 @@ do {
 
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
+            Write-Indented " " # Just print a newline for output readability.
             Write-Indented "Moving $($file.FullName) to processedStoredItemPath... " -NoNewLine
             Move-Item -Path $file.FullName -Destination $processedStoredItemPath
             Write-Host " done."
@@ -301,4 +305,5 @@ if ($global:sleepSeconds -gt 0) {
 ##################################################################################################################################################
 } while ($global:sleepSeconds -gt 0)#
 ######################################################################################################################################################
+Write-Indented " " # Just print a newline for output readability.
 Write-Indented "Done."
