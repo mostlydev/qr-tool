@@ -45,43 +45,41 @@ $global:studyFindMonthsBack      = 60
 
 
 ######################################################################################################################################################
-# Require some directories. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if they
-# felt like it.
+# Generate some directory paths. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if 
+# they felt like it.
 ######################################################################################################################################################
 $global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
 #=====================================================================================================================================================
 # Stored items and their sentinels:
-#=====================================================================================================================================================
 $global:incomingStoredItemsDirName  = "incoming-stored-items"
 $global:queuedStoredItemsDirName    = "queued-stored-items"
 $global:processedStoredItemsDirName = "processed-stored-items"
 $global:rejectedStoredItemsDirName  = "rejected-stored-items"
+# Move request tickets:
+$global:queuedStudyMovesDirName     = "queued-study-moves"
+$global:processedStudyMovesDirName  = "processed-study-moves"
 #=====================================================================================================================================================
+# Stored items and their sentinels:
 $global:incomingStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:incomingStoredItemsDirName
 $global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStoredItemsDirName
 $global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStoredItemsDirName
 $global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:rejectedStoredItemsDirName
-#=====================================================================================================================================================
 # Move request tickets:
-#=====================================================================================================================================================
-$global:queuedStudyMovesDirName     = "queued-study-moves"
-$global:processedStudyMovesDirName  = "processed-study-moves"
 $global:queuedStudyMovesDirPath     = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStudyMovesDirName
 $global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStudyMovesDirName
-#=====================================================================================================================================================
+######################################################################################################################################################
 
-#=====================================================================================================================================================
+
+######################################################################################################################################################
+# Require some directories:
+######################################################################################################################################################
 Require-DirectoryExists -DirectoryPath $global:cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
-#=====================================================================================================================================================
 # Stored items and their sentinels:
-#=====================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $global:incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $global:queuedStoredItemsDirPath    -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:processedStoredItemsDirPath -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -CreateIfNotExists $true
-#=====================================================================================================================================================
 # Move request tickets:
-#=====================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $global:queuedStudyMovesDirPath     -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:processedStudyMovesDirPath  -CreateIfNotExists $true
 ######################################################################################################################################################
@@ -128,8 +126,9 @@ do {
             # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
             # another appointment in the future a new hash will be generated.
             $studyHash                        = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
-            $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath "$studyHash.dcm"
-            $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath "$studyHash.dcm"
+            $hashedFilename                   = "$studyHash.dcm"
+            $possibleQueuedStoredItemsPath    = Join-Path   -Path $global:queuedStoredItemsDirPath    -ChildPath $hashedFilename
+            $possibleProcessedStoredItemsPath = Join-Path   -Path $global:processedStoredItemsDirPath -ChildPath $hashedFilename
 
             $foundFile = $null
 
@@ -140,7 +139,7 @@ do {
             }
 
             if ($foundFile -eq $null) {                
-                Write-Indented "Enqueuing $($file.FullName) as $possibleQueuedStoredItemspath."
+                Write-Indented "Enqueuing $($file.Name) as $hashedFilename."
                 MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $possibleQueuedStoredItemsPath
             } else {
                 Write-Indented "Item for hash $studyHash already exists in one of our directories as $foundFile, rejecting."

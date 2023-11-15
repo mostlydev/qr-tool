@@ -132,7 +132,7 @@ namespace FoDicomCmdlets
       client.AddRequestAsync(request).GetAwaiter().GetResult();
       client.SendAsync().GetAwaiter().GetResult();
 
-      Console.WriteLine($"Return {responses.Count} responses.");
+     // Console.WriteLine($"Return {responses.Count} responses.");
 
       WriteObject(responses);
     }    
