@@ -9,7 +9,7 @@ $global:qrServerPort             = 2763
 $global:qrDestinationAE          = "FLUXTEST1AB"
 #=====================================================================================================================================================
 $global:studyFindMonthsBack      = 60
-$global:studyMoveFixedModality   = "ZX" # $null # "ZX"
+$global:studyMoveFixedModality   = $null # "ZX"
 # ^ if $null, studies whose modality matches the stored item's are c-found (and subsequently c-moved), otherwise studies with this modality are found
 #   and moved.
 #=====================================================================================================================================================

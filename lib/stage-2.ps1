@@ -55,8 +55,6 @@ function Do-Stage2 {
 
             if ($cFindResponses.Count -eq 1) {
                 Write-Indented "... only a final response was received (0 matching results)."
-                
-                Remove-Item -Path $file.FullName
             } else {
                 $cFindStatus    = $cFindResponses[-1]
                 $cFindResponses = $cFindResponses[0..($cFindResponses.Count - 2)]

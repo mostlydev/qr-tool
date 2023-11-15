@@ -30,7 +30,7 @@ function Do-Stage3 {
             $cMoveResponses = Move-StudyByStudyInstanceUID $studyInstanceUID
 
             if ($cMoveResponses -eq $null -or $cMoveResponses.Count -eq 0) {
-                Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued study move $($file.FullName)."
+                Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
                 Remove-Item -Path $file.FullName
 
                 Continue
@@ -40,7 +40,7 @@ function Do-Stage3 {
             $cMoveResponses = $cMoveResponses[0..($cMoveResponses.Count - 2)]
 
             if ($cMoveStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "... C-Move's final response status was $($cMoveStatus.Statua). Removing queued study move $($file.FullName)."
+                Write-Indented "... C-Move's final response status was $($cMoveStatus.Statua). Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
                 Remove-Item -Path $file.FullName
 
                 Continue
