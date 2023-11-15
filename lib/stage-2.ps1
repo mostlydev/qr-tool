@@ -48,14 +48,18 @@ function Do-Stage2 {
                 Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
 
-                continue
+                Outdent
+
+                Continue
             }
 
             if ($cFindResponses.Count -eq 1) {
-                Write-Indented "... only a final response) received. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Write-Indented "... only a final response received (0 results). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
+
+                Outdent
                 
-                continue
+                Continue
             }
 
             $cFindStatus    = $cFindResponses[-1]
@@ -68,13 +72,6 @@ function Do-Stage2 {
             }
 
             Write-Indented "... C-Find was successful, move request tickets may be created."
-
-
-
-
-
-
-
 
             Indent
 
