@@ -3,6 +3,8 @@
 #            them.
 ######################################################################################################################################################
 function Do-Stage1 {
+    Write-Indented " " # Just print a newline for output readability.
+
     $filesInIncomingStoredItemsDir = Get-ChildItem -Path $global:incomingStoredItemsDirPath -Filter *.dcm
     
     if ($filesInIncomingStoredItemsDir.Count -eq 0) {
@@ -10,7 +12,6 @@ function Do-Stage1 {
     } else {
         $counter = 0
         
-        Write-Indented " " # Just print a newline for output readability.
         Write-Indented "Stage #1: Found $($filesInIncomingStoredItemsDir.Count) files in incomingStoredItems."
 
         Indent
