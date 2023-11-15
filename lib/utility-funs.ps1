@@ -51,6 +51,7 @@ function Outdent {
 #################################################################################################################################################
 function Require-DirectoryExists {
     param(
+        [Parameter(Mandatory = $true)]
         [string]$DirectoryPath,
         [bool]$CreateIfNotExists = $false
     )
@@ -87,9 +88,13 @@ function Require-DirectoryExists {
 #################################################################################################################################################
 function Require-NuGetPackage {
     param (
+        [Parameter(Mandatory = $true)]
         [string]$PackageName,
+        [Parameter(Mandatory = $true)]
         [string]$PackageVersion,
+        [Parameter(Mandatory = $true)]
         [string]$ExpectedDllPath,
+        [Parameter(Mandatory = $true)]
         [string]$DestinationDir
     )
     try {        
@@ -200,3 +205,17 @@ function Hash-String {
 #################################################################################################################################################
 
 
+#################################################################################################################################################
+function Touch-File {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+    
+    if (-Not (Test-Path -Path $Path)) {
+        New-Item -Path $Path -ItemType "file"
+    } else {
+        (Get-Item -Path $Path).LastWriteTime = Get-Date
+    }
+}
+#################################################################################################################################################

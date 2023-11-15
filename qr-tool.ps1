@@ -49,16 +49,32 @@ $global:studyFindMonthsBack      = 60
 # felt like it.
 ######################################################################################################################################################
 $global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
+#=====================================================================================================================================================
+# Stored items and their sentinels:
+#=====================================================================================================================================================
 $global:incomingStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "incoming-stored-items"
 $global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath "queued-stored-items"
 $global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath "processed-stored-items"
 $global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "rejected-stored-items"
 #=====================================================================================================================================================
+# Move request tickets:
+#=====================================================================================================================================================
+$global:queuedStudyMovesDirPath     = Join-Path -Path $global:cacheDirBasePath -ChildPath "queued-study-moves"
+$global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "processed-study-moves"
+#=====================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $global:cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
+#=====================================================================================================================================================
+# Stored items and their sentinels:
+#=====================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $global:incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
 Require-DirectoryExists -DirectoryPath $global:queuedStoredItemsDirPath    -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:processedStoredItemsDirPath -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -CreateIfNotExists $true
+#=====================================================================================================================================================
+# Move request tickets:
+#=====================================================================================================================================================
+Require-DirectoryExists -DirectoryPath $global:queuedStudyMovesDirPath     -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $global:processedStudyMovesDirPath  -CreateIfNotExists $true
 ######################################################################################################################################################
 
 
@@ -131,7 +147,8 @@ do {
     ##################################################################################################################################################
 
     ##################################################################################################################################################
-    # Stage #2/2: Examine files in $global:queuedStoredItemsDirPath, issue move requests for them and then move them to $processedStoredItemsPath.
+    # Stage #2/2: Examine files in $global:queuedStoredItemsDirPath, create move request tickets in $global:queuedStudyMovesDirPath in for them and
+    #             then move them to queued stored item to $processedStoredItemsPath.
     ##################################################################################################################################################
 
     $filesInQueuedStoredItemsDir = Get-ChildItem -Path $global:queuedStoredItemsDirPath -Filter *.dcm
@@ -185,25 +202,45 @@ do {
                 Continue
             }
 
-            Write-Indented "The C-Find query was successful."
+            Write-Indented "The C-Find query was successful, move request tickets will be created."
 
             $responseCounter = 0;
+
+            Indent
             
             foreach ($response in $cFindResponses) {
-                $responceCounter++
+                $responseCounter++
 
-                Write-Indented "Examine response #$responceCounter/$($cFindResponses.Count)..."
+                $dataset          = $response.Dataset
+                $studyInstanceUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
+
+                Write-Indented "Examine response #$responseCounter/$($cFindResponses.Count) with SUID $studyInstanceUID..."
 
                 Indent
                                 
-                $dataset  = $response.Dataset
-                $studyUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
+                $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request"
+            
+                Write-Indented "Creating move request ticket at $studyMoveTicketFilePath..." -NoNewLine
 
-                Write-Indented "SUID: $studyUID"
+                if (-Not (Test-Path -Path $studyMoveTicketFilePath)) {
+                    $null = Touch-File $studyMoveTicketFilePath
+
+                    Write-Host " created." 
+                } else {
+                    Write-Host " already exists, skipping."
+                }
 
                 Outdent
                 
             }
+
+            Outdent
+
+            $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
+
+            Write-Indented "Moving $($file.FullName) to processedStoredItemPath... " -NoNewLine
+            Move-Item -Path $file.FullName -Destination $processedStoredItemPath
+            Write-Host " done."
             
             # $moveResponses      = Move-StudyByStudyInstanceUID $tags.StudyInstanceUID
             # $lastResponseStatus = $null
@@ -231,7 +268,7 @@ do {
             #     $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
             #     Write-Indented "Moving $($file.FullName) to $processedStoredItemPath"
-            #     Move-Item -Path $File.FullName -Destination $processedStoredItemPath
+            #     Move-Item -Path $file.FullName -Destination $processedStoredItemPath
             # }
         
         Outdent
