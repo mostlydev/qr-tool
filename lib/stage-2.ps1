@@ -24,8 +24,8 @@ function Do-Stage2 {
             
             $tags = Extract-StudyTags -File $file
 
-            if ($null -ne $global:studyMoveFixedModality) {
-                $modality = $global:studyMoveFixedModality
+            if ($null -ne $global:findAndMoveFixedModality) {
+                $modality = $global:findAndMoveFixedModality
             } else {
                 $modality = $tags.Modality
             }
