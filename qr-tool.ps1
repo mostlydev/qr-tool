@@ -5,7 +5,6 @@
 $global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
 #=====================================================================================================================================================
 # Stored items and their sentinels:
-$global:incomingStoredItemsDirName  = "incoming-stored-items"
 $global:queuedStoredItemsDirName    = "queued-stored-items"
 $global:processedStoredItemsDirName = "processed-stored-items"
 $global:rejectedStoredItemsDirName  = "rejected-stored-items"
@@ -14,7 +13,6 @@ $global:queuedStudyMovesDirName     = "queued-study-moves"
 $global:processedStudyMovesDirName  = "processed-study-moves"
 #=====================================================================================================================================================
 # Stored items and their sentinels:
-$global:incomingStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:incomingStoredItemsDirName
 $global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStoredItemsDirName
 $global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStoredItemsDirName
 $global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:rejectedStoredItemsDirName
