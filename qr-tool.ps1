@@ -227,12 +227,12 @@ do {
             
 
                 if (-Not (Test-Path -Path $studyMoveTicketFilePath)) {
-                    Write-Indented "Creating move request ticket at $studyMoveTicketFilePath..." -NoNewLine
+                    Write-Indented "Creating move request ticket at $(Trim-BasePath -Path $studyMoveTicketFilePath)..." -NoNewLine
                     $null = Touch-File $studyMoveTicketFilePath
                     Write-Host " created." 
 
                 } else {
-                    Write-Indented "Ticket already exists at $studyMoveTicketFilePath."
+                    Write-Indented "Ticket already exists at $(Trim-BasePath -Path $studyMoveTicketFilePath)."
                 }
 
                 Outdent

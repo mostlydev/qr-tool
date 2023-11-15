@@ -192,13 +192,13 @@ function Hash-String {
         [PSObject]$HashInput
     )
 
-    Write-Indented "Hash Input: $HashInput"
+    Write-Indented "Hash Input:       $HashInput"
 
     $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
     $hashBytes     = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($HashInput))
     $hashOutput    = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
     
-    Write-Indented "Hash Output: $hashOutput"
+    Write-Indented "Hash Output:      $hashOutput"
 
     return $hashOutput
 }
