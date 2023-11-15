@@ -54,7 +54,7 @@ function Do-Stage2 {
             }
 
             if ($cFindResponses.Count -eq 1) {
-                Write-Indented "... only a final response received (0 results). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Write-Indented "... only a final response received (0 matching results). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
 
                 Outdent
