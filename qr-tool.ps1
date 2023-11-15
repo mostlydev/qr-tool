@@ -52,15 +52,24 @@ $global:cacheDirBasePath            = Join-Path -Path $PSScriptRoot            -
 #=====================================================================================================================================================
 # Stored items and their sentinels:
 #=====================================================================================================================================================
-$global:incomingStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "incoming-stored-items"
-$global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath "queued-stored-items"
-$global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath "processed-stored-items"
-$global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "rejected-stored-items"
+$global:incomingStoredItemsDirName  = "incoming-stored-items"
+$global:queuedStoredItemsDirName    = "queued-stored-items"
+$global:processedStoredItemsDirName = "processed-stored-items"
+$global:rejectedStoredItemsDirName  = "rejected-stored-items"
+#=====================================================================================================================================================
+$global:incomingStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:incomingStoredItemsDirName
+$global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStoredItemsDirName
+$global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStoredItemsDirName
+$global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:rejectedStoredItemsDirName
 #=====================================================================================================================================================
 # Move request tickets:
 #=====================================================================================================================================================
-$global:queuedStudyMovesDirPath     = Join-Path -Path $global:cacheDirBasePath -ChildPath "queued-study-moves"
-$global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath "processed-study-moves"
+$global:queuedStudyMovesDirName     = "queued-study-moves"
+$global:processedStudyMovesDirName  = "processed-study-moves"
+$global:queuedStudyMovesDirPath     = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStudyMovesDirName
+$global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStudyMovesDirName
+#=====================================================================================================================================================
+
 #=====================================================================================================================================================
 Require-DirectoryExists -DirectoryPath $global:cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
 #=====================================================================================================================================================
@@ -220,14 +229,14 @@ do {
                                 
                 $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request"
             
-                Write-Indented "Creating move request ticket at $studyMoveTicketFilePath..." -NoNewLine
 
                 if (-Not (Test-Path -Path $studyMoveTicketFilePath)) {
+                    Write-Indented "Creating move request ticket at $studyMoveTicketFilePath..." -NoNewLine
                     $null = Touch-File $studyMoveTicketFilePath
-
                     Write-Host " created." 
+
                 } else {
-                    Write-Host " already exists, skipping."
+                    Write-Indented "Ticket already exists at $studyMoveTicketFilePath." -NoNewLine
                 }
 
                 Outdent
