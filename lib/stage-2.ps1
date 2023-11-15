@@ -24,16 +24,16 @@ function Do-Stage2 {
             
             $tags = Extract-StudyTags -File $file
 
-            WriteStudyTags-Indented -StudyTags $tags
-            Write-Indented " " # Just print a newline for output readability.            
-            Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$($tags.Modality)..."
-
             if ($null -ne $global:studyMoveFixedModality) {
                 $modality = $global:studyMoveFixedModality
             } else {
                 $modality = $tags.Modality
             }
             
+            WriteStudyTags-Indented -StudyTags $tags
+            Write-Indented " " # Just print a newline for output readability.            
+            Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
+
             $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
               -MyAE             $global:myAE `
               -QrServerAE       $global:qrServerAE `
@@ -61,42 +61,47 @@ function Do-Stage2 {
                 Continue
             }
 
-            Write-Indented "... C-Find was successful, move request tickets will be created."
+            Write-Indented "... C-Find was successful, move request tickets may be created."
 
-            $responseCounter = 0;
-
-            Indent
-            
-            foreach ($response in $cFindResponses) {
-                $responseCounter++
-
-                $dataset          = $response.Dataset
-                $studyInstanceUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
-
-                Write-Indented "Examine response #$responseCounter/$($cFindResponses.Count) with SUID $studyInstanceUID..."
-
+            if ($cFindResponses.Count > 0) {
+                Write-Indented "Found $($cFindResponses.Count) studies, creating move request tickets:"
+                
                 Indent
+
+                $responseCounter = 0;
                 
-                $studyMoveTicketFileName = "$studyInstanceUID.move-request" 
-                $foundFile               = Find-FileInDirectories `
-                  -Filename $studyMoveTicketFileName `
-                  -Directories @($global:queuedStudyMovesDirPath, $global:processedStudyMovesDirPath)
+                foreach ($response in $cFindResponses) {
+                    $responseCounter++
 
-                if ($foundFile -eq $null) {
-                    $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request" 
+                    $dataset          = $response.Dataset
+                    $studyInstanceUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
 
-                    Write-Indented "Creating move request ticket at $(Trim-BasePath -Path $studyMoveTicketFilePath)..." -NoNewLine
+                    Write-Indented "Examine response #$responseCounter/$($cFindResponses.Count) with SUID $studyInstanceUID..."
 
-                    $null = Touch-File $studyMoveTicketFilePath
+                    Indent
+                    
+                    $studyMoveTicketFileName = "$studyInstanceUID.move-request" 
+                    $foundFile               = Find-FileInDirectories `
+                      -Filename $studyMoveTicketFileName `
+                      -Directories @($global:queuedStudyMovesDirPath, $global:processedStudyMovesDirPath)
 
-                    Write-Host " done." 
-                } else {
-                    Write-Indented "Item for SUID $studyInstanceUID already exists as $(Trim-BasePath -Path $foundFile)."
-                    # don't delete or move anything yet, we'll do it further down after iterating over all the responses.
-                }
+                    if ($foundFile -eq $null) {
+                        $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request" 
 
-                Outdent
-                
+                        Write-Indented "Creating move request ticket at $(Trim-BasePath -Path $studyMoveTicketFilePath)..." -NoNewLine
+
+                        $null = Touch-File $studyMoveTicketFilePath
+
+                        Write-Host " done." 
+                    } else {
+                        Write-Indented "Item for SUID $studyInstanceUID already exists as $(Trim-BasePath -Path $foundFile)."
+                        # don't delete or move anything yet, we'll do it further down after iterating over all the responses.
+                    }
+
+                    Outdent
+                }    
+            } else {
+                Write-Indented "Found no studies, not creating move request tickets."
             }
 
             Outdent
