@@ -10,16 +10,16 @@ function Do-Stage2 {
     } else {
         $counter = 0
 
-        Write-Indented " " # Just print a newline for output readability. 
+        Write-Indented " " # Just print a newline for output readability.
         Write-Indented "Stage #2: Found $($filesInQueuedStoredItemsDir.Count) files in queuedStoredItems."
 
         Indent
         
         foreach ($file in $filesInQueuedStoredItemsDir) {
             $counter++
-
-            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
             
+            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
+
             Indent
             
             $tags = Extract-StudyTags -File $file
@@ -29,9 +29,9 @@ function Do-Stage2 {
             } else {
                 $modality = $tags.Modality
             }
-            
+
             WriteStudyTags-Indented -StudyTags $tags
-            Write-Indented " " # Just print a newline for output readability.            
+            Write-Indented " " # Just print a newline for output readability.
             Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
 
             $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
@@ -51,24 +51,31 @@ function Do-Stage2 {
                 continue
             }
 
+            if ($cFindResponses.Count -eq 1) {
+                Write-Indented "... only a final response) received. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Remove-Item -Path $file.FullName
+                
+                continue
+            }
+
             $cFindStatus    = $cFindResponses[-1]
             $cFindResponses = $cFindResponses[0..($cFindResponses.Count - 2)]
 
             if ($cFindStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "... C-Find's final response status was $($cFindStatus.Statua). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Write-Indented "... C-Find's final response status was $($cFindStatus.Status). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
-
                 Continue
             }
 
             Write-Indented "... C-Find was successful, move request tickets may be created."
 
-            if ($cFindResponses.Count -eq 0) {
-                Write-Indented "Found no studies, not creating move request tickets."
-                Continue
-            } 
-            Write-Indented "Found $($cFindResponses.Count) studies, creating move request tickets:"
-            
+
+
+
+
+
+
+
             Indent
 
             $responseCounter = 0;
