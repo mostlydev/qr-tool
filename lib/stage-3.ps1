@@ -3,8 +3,6 @@
 #            move them to queued stored item to $processedStoredItemsPath.
 ##################################################################################################################################################
 function Do-Stage3 {
-    Write-Indented " " # Just print a newline for output readability.    
-
     $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.move-request
 
     if ($filesInQueuedStudyMovesDir.Count -eq 0) {
@@ -12,6 +10,7 @@ function Do-Stage3 {
     } else {
         $counter = 0
         
+        Write-Indented " " # Just print a newline for output readability.    
         Write-Indented "Stage #3: Found $($filesInQueuedStudyMovesDir.Count) files in queuedStudyMoves."
 
         Indent

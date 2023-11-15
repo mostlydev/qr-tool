@@ -3,15 +3,14 @@
 #            move them to queued stored item to $processedStoredItemsPath.
 ######################################################################################################################################################
 function Do-Stage2 {
-    Write-Indented " " # Just print a newline for output readability.    
-
     $filesInQueuedStoredItemsDir = Get-ChildItem -Path $global:queuedStoredItemsDirPath -Filter *.dcm
 
     if ($filesInQueuedStoredItemsDir.Count -eq 0) {
         Write-Indented "Stage #2: No files found in queuedStoredItems."
     } else {
         $counter = 0
-        
+
+        Write-Indented " " # Just print a newline for output readability. 
         Write-Indented "Stage #2: Found $($filesInQueuedStoredItemsDir.Count) files in queuedStoredItems."
 
         Indent
