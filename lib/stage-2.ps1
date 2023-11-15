@@ -27,6 +27,12 @@ function Do-Stage2 {
             WriteStudyTags-Indented -StudyTags $tags
             Write-Indented " " # Just print a newline for output readability.            
             Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$($tags.Modality)..."
+
+            if ($null -ne $global:studyMoveFixedModality) {
+                $modality = $global:studyMoveFixedModality
+            } else {
+                $modality = $tags.Modality
+            }
             
             $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
               -MyAE             $global:myAE `
@@ -35,7 +41,7 @@ function Do-Stage2 {
               -QrServerPort     $global:qrServerPort `
               -PatientName      $tags.PatientName `
               -PatientBirthDate $tags.PatientBirthDate `
-              -Modality         $tags.Modality `
+              -Modality         $modality `
               -MonthsBack       $global:studyFindMonthsBack
 
             if ($cFindResponses -eq $null -or $cFindResponses.Count -eq 0) {
