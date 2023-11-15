@@ -8,18 +8,18 @@ function Do-Stage3 {
     $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.move-request
 
     if ($filesInQueuedStudyMovesDir.Count -eq 0) {
-        Write-Indented "Stage #3: No DCM files found in queuedStoredItems."
+        Write-Indented "Stage #3: No DCM files found in queuedStudyMoves."
     } else {
         $counter = 0
         
-        Write-Indented "Stage #3: Found $($filesInQueuedStudyMovesDir.Count) files in queuedStoredItems."
+        Write-Indented "Stage #3: Found $($filesInQueuedStudyMovesDir.Count) files in queuedStudyMoves."
 
         Indent
         
         foreach ($file in $filesInQueuedStudyMovesDir) {
             $counter++
             
-            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
+            Write-Indented "Processing file #$counter/$($filesInQueuedStudyMovesDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
             
             Indent
 
