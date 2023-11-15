@@ -47,7 +47,7 @@ function Do-Stage3 {
             $cMoveResponses = $cMoveResponses[0..($cMoveResponses.Count - 2)]
 
             if ($cMoveStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "... C-Move's final response status was $($cMoveStatus.Statua). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Write-Indented "... C-Move's final response status was $($cMoveStatus.Statua). Removing queued study move $($file.FullName)."
                 Remove-Item -Path $file.FullName
 
                 Continue
