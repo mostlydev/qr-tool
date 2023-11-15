@@ -63,7 +63,9 @@ function Do-Stage2 {
 
             Write-Indented "... C-Find was successful, move request tickets may be created."
 
-            if ($cFindResponses.Count > 0) {
+            if ($cFindResponses.Count -eq 0) {
+                Write-Indented "Found no studies, not creating move request tickets."
+            } else {
                 Write-Indented "Found $($cFindResponses.Count) studies, creating move request tickets:"
                 
                 Indent
@@ -100,10 +102,8 @@ function Do-Stage2 {
 
                     Outdent
                 }    
-            } else {
-                Write-Indented "Found no studies, not creating move request tickets."
             }
-
+            
             Outdent
 
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
