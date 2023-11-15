@@ -8,7 +8,7 @@ function Do-Stage2 {
     $filesInQueuedStoredItemsDir = Get-ChildItem -Path $global:queuedStoredItemsDirPath -Filter *.dcm
 
     if ($filesInQueuedStoredItemsDir.Count -eq 0) {
-        Write-Indented "Stage #2: No DCM files found in queuedStoredItems."
+        Write-Indented "Stage #2: No files found in queuedStoredItems."
     } else {
         $counter = 0
         
@@ -72,15 +72,22 @@ function Do-Stage2 {
 
                 Indent
                 
-                $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request"                
+                $studyMoveTicketFileName = "$studyInstanceUID.move-request" 
+                $foundFile               = Find-FileInDirectories `
+                  -Filename $studyMoveTicketFileName `
+                  -Directories @($global:queuedStudyMovesDirPath, $global:processedStudyMovesDirPath)
 
-                if (-Not (Test-Path -Path $studyMoveTicketFilePath)) {
+                if ($foundFile -eq $null) {
+                    $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request" 
+
                     Write-Indented "Creating move request ticket at $(Trim-BasePath -Path $studyMoveTicketFilePath)..." -NoNewLine
-                    $null = Touch-File $studyMoveTicketFilePath
-                    Write-Host " created." 
 
+                    $null = Touch-File $studyMoveTicketFilePath
+
+                    Write-Host " done." 
                 } else {
-                    Write-Indented "Ticket already exists at $(Trim-BasePath -Path $studyMoveTicketFilePath)."
+                    Write-Indented "Item for hash $studyHash already exists as $(Trim-BasePath -Path $foundFile)."
+                    # don't delete or move anything yet, we'll do it further down after iterating over all the responses.
                 }
 
                 Outdent

@@ -8,7 +8,7 @@ function Do-Stage1 {
     $filesInIncomingStoredItemsDir = Get-ChildItem -Path $global:incomingStoredItemsDirPath -Filter *.dcm
     
     if ($filesInIncomingStoredItemsDir.Count -eq 0) {
-        Write-Indented "Stage #1: No DCM files found in incomingStoredItemsDir."
+        Write-Indented "Stage #1: No files found in incomingStoredItemsDir."
     } else {
         $counter = 0
         
@@ -41,11 +41,18 @@ function Do-Stage1 {
             Write-Indented " " # Just print a newline for output readability.
 
             $hashedFileName = "$studyHash.dcm"
-            $foundFile      = Find-FileInDirectories -Filename $hashedFilename -Directories @($global:queuedStoredItemsDirPath, $global:processedStoredItemsDirPath)
+            $foundFile      = Find-FileInDirectories `
+              -Filename $hashedFilename `
+              -Directories @($global:queuedStoredItemsDirPath, $global:processedStoredItemsDirPath)
             
-            if ($foundFile -eq $null) {                
-                Write-Indented "Enqueuing $($file.Name) as $hashedFilename."
-                MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination (Join-Path -Path $global:queuedStoredItemsDirPath -ChildPath $hashedFileName)
+            if ($foundFile -eq $null) {
+                $queuedStoredItemPath = Join-Path -Path $global:queuedStoredItemsDirPath -ChildPath $hashedFileName
+
+                Write-Indented "Enqueuing $($file.Name) as $hashedFilename..." -NoNewLine
+
+                $null = MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $queuedStoredItemPath
+                
+                Write-Indented " done."
             } else {
                 Write-Indented "Item for hash $studyHash already exists as $(Trim-BasePath -Path $foundFile), rejecting."
                 Reject-File -File $file -RejectedDirPath $global:rejectedStoredItemsDirPath
