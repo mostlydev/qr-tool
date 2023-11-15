@@ -191,23 +191,23 @@ do {
               -MonthsBack       $global:studyFindMonthsBack
 
             if ($cFindResponses -eq $null -or $cFindResponses.Count -eq 0) {
-                Write-Indented "No responses (or null responses) received. This is unusual. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
 
                 Continue
             }
 
-            $status = $cFindResponses[-1]
+            $cFindStatus = $cFindResponses[-1]
             $cFindResponses = $cFindResponses[0..($cFindResponses.Count - 2)]
 
-            if ($status.Status -ne [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "Final response status was $($status.Statua). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+            if ($cFindStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
+                Write-Indented "... C-Find's final response status was $($cFindStatus.Statua). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
 
                 Continue
             }
 
-            Write-Indented "The C-Find query was successful, move request tickets will be created."
+            Write-Indented "... C-Find was successful, move request tickets will be created."
 
             $responseCounter = 0;
 
@@ -244,7 +244,7 @@ do {
             $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
 
             Write-Indented " " # Just print a newline for output readability.
-            Write-Indented "Moving $($file.FullName) to processedStoredItemPath... " -NoNewLine
+            Write-Indented "Moving $(Trim-BasePath -Path $file.FullName) to $(Trim-BasePath -Path $processedStoredItemPath)... " -NoNewLine
             Move-Item -Path $file.FullName -Destination $processedStoredItemPath
             Write-Host " done."
             
