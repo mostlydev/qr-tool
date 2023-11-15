@@ -85,7 +85,7 @@ function Do-Stage2 {
 
                     Write-Host " done." 
                 } else {
-                    Write-Indented "Item for hash $studyHash already exists as $(Trim-BasePath -Path $foundFile)."
+                    Write-Indented "Item for SUID $studyInstanceUID already exists as $(Trim-BasePath -Path $foundFile)."
                     # don't delete or move anything yet, we'll do it further down after iterating over all the responses.
                 }
 
