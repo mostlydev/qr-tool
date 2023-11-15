@@ -26,8 +26,7 @@ function Do-Stage2 {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
-            Write-Indented " " # Just print a newline for output readability.
-            
+            Write-Indented " " # Just print a newline for output readability.            
             Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$($tags.Modality)..."
             
             $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
@@ -44,7 +43,7 @@ function Do-Stage2 {
                 Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
                 Remove-Item -Path $file.FullName
 
-                Continue
+                continue
             }
 
             $cFindStatus    = $cFindResponses[-1]
