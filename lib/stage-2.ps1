@@ -73,8 +73,7 @@ function Do-Stage2 {
 
                 Indent
                 
-                $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request"
-                
+                $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request"                
 
                 if (-Not (Test-Path -Path $studyMoveTicketFilePath)) {
                     Write-Indented "Creating move request ticket at $(Trim-BasePath -Path $studyMoveTicketFilePath)..." -NoNewLine
