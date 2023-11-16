@@ -17,6 +17,7 @@ $global:sleepSeconds               = 0 # if greater than 0 script will loop, sle
 $global:mtimeThreshholdSeconds     = 3
 $global:largeFileThreshholdBytes   = 50000
 $global:rejectByDeleting           = $true
+$global:maskPatientNames           = $true
 #=====================================================================================================================================================
 $global:cacheDirBasePath           = Join-Path -Path $PSScriptRoot            -ChildPath "cache"
 # ^ This directory must be writable as the script will create subdirectories in it and files within them.

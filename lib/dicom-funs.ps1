@@ -79,8 +79,13 @@ function WriteStudyTags-Indented {
     param (
         [Parameter(Mandatory = $true)]
         [PSObject]$StudyTags)
-   
-    Write-Indented "Patient Name:     $($StudyTags.PatientName)"
+
+    if ($global:maskPatientNames) {
+        Write-Indented "Patient Name:     $(Mask-PatientName -Name $StudyTags.PatientName)"
+    } else {
+        Write-Indented "Patient Name:     $($StudyTags.PatientName)"
+    }
+    
     Write-Indented "Patient DOB:      $($StudyTags.PatientBirthDate)"
     Write-Indented "Study Date:       $($StudyTags.StudyDate)"
     Write-Indented "Modality:         $($StudyTags.Modality)"
@@ -140,5 +145,31 @@ function Move-StudyByStudyInstanceUID {
     Write-Host " done."
 
     return $responses
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
+# Mask-PatientName
+#################################################################################################################################################
+function Mask-PatientName {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    $maskedNameParts = @()
+    $nameParts = $Name.Split('^')
+
+    foreach ($part in $nameParts) {
+        if ($part.Length -gt 1) {
+            $maskedPart = $part[0] + '?' * ($part.Length - 1)
+            $maskedNameParts += $maskedPart
+        } else {
+            $maskedNameParts += $part
+        }
+    }
+
+    return ($maskedNameParts -join '^')
 }
 #################################################################################################################################################

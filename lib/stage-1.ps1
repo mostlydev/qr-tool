@@ -33,10 +33,18 @@ function Do-Stage1 {
             $tags = Extract-StudyTags -File $file
 
             WriteStudyTags-Indented -StudyTags $tags
+
+            $hashInput = "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
+            
+            if ($global:maskPatientNames) {
+                Write-Indented "Hash Input:       $(Mask-PatientName -Name $tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate) (masked)"
+            } else {
+                Write-Indented "Hash Input:       $HashInput"
+            }
             
             # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
             # another appointment in the future a new hash will be generated.
-            $studyHash      = Hash-String -HashInput "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
+            $studyHash      = Hash-String -HashInput $hashInput
 
             Write-Indented " " # Just print a newline for output readability.
 
