@@ -3,3 +3,4 @@ cache/*
 packages/*
 .DS_Store
 inbound-bak/*
+config.ps1
