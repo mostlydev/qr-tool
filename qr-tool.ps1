@@ -43,12 +43,25 @@ $global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDic
 # These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
 # they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
 #=====================================================================================================================================================
-. (Join-Path -Path $PSScriptRoot -ChildPath "config.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-1.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-2.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-3.ps1")
+$libPaths = @(
+    "config.ps1",
+    "lib\utility-funs.ps1",
+    "lib\dicom-funs.ps1",
+    "lib\stage-1.ps1",
+    "lib\stage-2.ps1",
+    "lib\stage-3.ps1"
+)
+#=====================================================================================================================================================
+foreach ($scriptPath in $libPaths) {
+    $fullPath = Join-Path -Path $PSScriptRoot -ChildPath $scriptPath
+
+    if (Test-Path -Path $fullPath) {
+        . $fullPath
+    } else {
+        Write-Error "lib file not found: $fullPath"
+        exit
+    }
+}
 ######################################################################################################################################################
 
 
