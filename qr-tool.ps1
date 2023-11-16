@@ -1,43 +1,4 @@
 ######################################################################################################################################################
-# Generate some directory paths. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if 
-# they felt like it.
-######################################################################################################################################################
-# Stored items and their sentinels:
-$global:queuedStoredItemsDirName    = "queued-stored-items"
-$global:processedStoredItemsDirName = "processed-stored-items"
-$global:rejectedStoredItemsDirName  = "rejected-stored-items"
-# Move request tickets:
-$global:queuedStudyMovesDirName     = "queued-study-moves"
-$global:processedStudyMovesDirName  = "processed-study-moves"
-#=====================================================================================================================================================
-# Stored items and their sentinels:
-$global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStoredItemsDirName
-$global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStoredItemsDirName
-$global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:rejectedStoredItemsDirName
-# Move request tickets:
-$global:queuedStudyMovesDirPath     = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStudyMovesDirName
-$global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStudyMovesDirName
-######################################################################################################################################################
-
-
-######################################################################################################################################################
-# Include FoDicomCmdlets DLL:
-######################################################################################################################################################
-$global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets\bin\Release\FoDicomCmdlets.dll"
-#=====================================================================================================================================================
-Import-Module $global:foDicomCmdletsDLLPath
-######################################################################################################################################################
-
-
-######################################################################################################################################################
-# Set up packages (well, just fo-dicom presently, shared with FoDicomCmdlets):
-######################################################################################################################################################
-$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/bin/Release/Dicom.Core.dll"
-$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
-######################################################################################################################################################
-
-
-######################################################################################################################################################
 # Include required function libs:
 ######################################################################################################################################################
 # These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
@@ -67,6 +28,28 @@ foreach ($scriptPath in $libPaths) {
 
 
 ######################################################################################################################################################
+# Generate some directory paths. The user could put $global:incomingStoredItemsDirPath outside of $global:cacheDirBasePath without breaking things if 
+# they felt like it.
+######################################################################################################################################################
+# Stored items and their sentinels:
+$global:queuedStoredItemsDirName    = "queued-stored-items"
+$global:processedStoredItemsDirName = "processed-stored-items"
+$global:rejectedStoredItemsDirName  = "rejected-stored-items"
+# Move request tickets:
+$global:queuedStudyMovesDirName     = "queued-study-moves"
+$global:processedStudyMovesDirName  = "processed-study-moves"
+#=====================================================================================================================================================
+# Stored items and their sentinels:
+$global:queuedStoredItemsDirPath    = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStoredItemsDirName
+$global:processedStoredItemsDirPath = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStoredItemsDirName
+$global:rejectedStoredItemsDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:rejectedStoredItemsDirName
+# Move request tickets:
+$global:queuedStudyMovesDirPath     = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:queuedStudyMovesDirName
+$global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -ChildPath $global:processedStudyMovesDirName
+######################################################################################################################################################
+
+
+######################################################################################################################################################
 # Require some directories:
 ######################################################################################################################################################
 Require-DirectoryExists -DirectoryPath $global:cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
@@ -78,6 +61,23 @@ Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -Crea
 # Move request tickets:
 Require-DirectoryExists -DirectoryPath $global:queuedStudyMovesDirPath     -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:processedStudyMovesDirPath  -CreateIfNotExists $true
+######################################################################################################################################################
+
+
+######################################################################################################################################################
+# Include FoDicomCmdlets DLL:
+######################################################################################################################################################
+$global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets\bin\Release\FoDicomCmdlets.dll"
+#=====================================================================================================================================================
+Import-Module $global:foDicomCmdletsDLLPath
+######################################################################################################################################################
+
+
+######################################################################################################################################################
+# Set up packages (well, just fo-dicom presently, shared with FoDicomCmdlets):
+######################################################################################################################################################
+$global:foDicomExpectedDllPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets/bin/Release/Dicom.Core.dll"
+$null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
 ######################################################################################################################################################
 
 

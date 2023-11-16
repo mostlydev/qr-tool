@@ -32,7 +32,12 @@ function Do-Stage2 {
 
             WriteStudyTags-Indented -StudyTags $tags
             Write-Indented " " # Just print a newline for output readability.
-            Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
+
+            if ($global:maskPatientNames) {
+                Write-Indented "Looking up studies for $(Mask-PatientName -Name $tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
+            } else {
+                Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
+            }
 
             $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
               -MyAE             $global:myAE `
