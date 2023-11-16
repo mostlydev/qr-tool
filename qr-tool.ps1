@@ -59,7 +59,8 @@ foreach ($scriptPath in $libPaths) {
         . $fullPath
     } else {
         Write-Error "lib file not found: $fullPath"
-        exit
+        
+        Exit
     }
 }
 ######################################################################################################################################################
