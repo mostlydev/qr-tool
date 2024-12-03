@@ -14,7 +14,7 @@ function Get-DicomTagString {
 
     try {
         $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
-        
+
         return $method.Invoke($Dataset, @($Tag, $DefaultValue))
     }
     catch {
@@ -29,7 +29,8 @@ function Get-DicomTagString {
 #################################################################################################################################################
 # Extract-StudyTags
 #################################################################################################################################################
-function Extract-StudyTags {
+
+function Extract-StudyTags {
     param (
         [Parameter(Mandatory = $true)]
         [System.IO.FileInfo]$File
@@ -80,12 +81,7 @@ function WriteStudyTags-Indented {
         [Parameter(Mandatory = $true)]
         [PSObject]$StudyTags)
 
-    if ($global:maskPatientNames) {
-        Write-Indented "Patient Name:     $(Mask-PatientName -Name $StudyTags.PatientName)"
-    } else {
-        Write-Indented "Patient Name:     $($StudyTags.PatientName)"
-    }
-    
+    Write-Indented "Patient Name:     $($StudyTags.PatientName)"
     Write-Indented "Patient DOB:      $($StudyTags.PatientBirthDate)"
     Write-Indented "Study Date:       $($StudyTags.StudyDate)"
     Write-Indented "Modality:         $($StudyTags.Modality)"
@@ -95,7 +91,7 @@ function WriteStudyTags-Indented {
 
 
 #################################################################################################################################################
-# MaybeStripPixelDataAndThenMoveTo-Path 
+# MaybeStripPixelDataAndThenMoveTo-Path
 #################################################################################################################################################
 function MaybeStripPixelDataAndThenMoveTo-Path {
     param (
@@ -106,24 +102,29 @@ function MaybeStripPixelDataAndThenMoveTo-Path {
     )
 
     if ($File.Length -gt $global:largeFileThreshholdBytes) {
-        $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
-        $dataset = $dicomFile.Dataset
+        $dicomFile = $null
+        try {
+            $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
+            $dataset = $dicomFile.Dataset
 
-        if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
-            $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
-            
-            $dicomFile.Save($File.FullName)
-            Write-Indented "Pixel Data stripped from $($File.Name) before moving it to $(Trim-BasePath -Path $Destination)."
+            if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
+                $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
+                $dicomFile.Save($File.FullName)
+                Write-Indented "Pixel Data stripped from $($File.Name) before moving it to $(Trim-BasePath -Path $Destination)."
+            }
+        }
+        finally {
+           # if ($dicomFile) { $dicomFile.Dispose() }
         }
     }
-    
+
     Move-Item -Path $File.FullName -Destination $Destination
 }
 #################################################################################################################################################
 
 
 #################################################################################################################################################
-# Move-StudyByStudyInstanceUID: 
+# Move-StudyByStudyInstanceUID:
 #################################################################################################################################################
 function Move-StudyByStudyInstanceUID {
     param (
@@ -132,7 +133,7 @@ function Move-StudyByStudyInstanceUID {
     )
 
     Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
-    
+
     $responses = Move-StudyByStudyInstanceUIDSync `
       -StudyInstanceUID $StudyInstanceUID `
       -DestinationAE    $global:qrDestinationAE `
@@ -140,36 +141,10 @@ function Move-StudyByStudyInstanceUID {
       -ServerPort       $global:qrServerPort `
       -ServerAE         $global:qrServerAE `
       -MyAE             $global:myAE
-            
+
 
     Write-Host " done."
 
     return $responses
-}
-#################################################################################################################################################
-
-
-#################################################################################################################################################
-# Mask-PatientName
-#################################################################################################################################################
-function Mask-PatientName {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Name
-    )
-
-    $maskedNameParts = @()
-    $nameParts = $Name.Split('^')
-
-    foreach ($part in $nameParts) {
-        if ($part.Length -gt 1) {
-            $maskedPart = $part[0] + '?' * ($part.Length - 1)
-            $maskedNameParts += $maskedPart
-        } else {
-            $maskedNameParts += $part
-        }
-    }
-
-    return ($maskedNameParts -join '^')
 }
 #################################################################################################################################################

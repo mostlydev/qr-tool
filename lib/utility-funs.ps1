@@ -1,7 +1,8 @@
 #################################################################################################################################################
 # Globals meant not for configuration use, these probably shouldn't be changed by the user.
 #################################################################################################################################################
-$global:indent                   = 0
+
+$global:indent                   = 0
 #################################################################################################################################################
 
 
@@ -266,3 +267,17 @@ function Trim-BasePath {
 }
 #################################################################################################################################################
 
+function Log-Query {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$QueryType,
+        [Parameter(Mandatory = $true)]
+        [string]$QueryDetails
+    )
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "QUERY_LOG|$timestamp|$QueryType|$QueryDetails"
+    
+    $logFilePath = Join-Path -Path $global:cacheDirBasePath -ChildPath "query_log.txt"
+    Add-Content -Path $logFilePath -Value $logEntry
+}
