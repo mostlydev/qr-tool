@@ -1,4 +1,14 @@
 ######################################################################################################################################################
+# Script Parameters:
+######################################################################################################################################################
+param(
+    [Parameter(Mandatory=$false)]
+    [switch]$StartWorklistQuery
+)
+######################################################################################################################################################
+
+
+######################################################################################################################################################
 # Include required function libs:
 ######################################################################################################################################################
 # These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
@@ -6,11 +16,14 @@
 #=====================================================================================================================================================
 $libPaths = @(
   "config.ps1",
+  "lib\logging.ps1",
+  "lib\retry.ps1",
   "lib\utility-funs.ps1",
   "lib\dicom-funs.ps1",
   "lib\stage-1.ps1",
   "lib\stage-2.ps1",
-  "lib\stage-3.ps1"
+  "lib\stage-3.ps1",
+  "lib\worklist-query.ps1"
 )
 #=====================================================================================================================================================
 foreach ($scriptPath in $libPaths) {
@@ -72,20 +85,6 @@ $null = [Reflection.Assembly]::LoadFile($global:foDicomExpectedDllPath)
 ######################################################################################################################################################
 
 
-######################################################################################################################################################
-# Include required function libs:
-######################################################################################################################################################
-# These included files depend on each other and on globals defined here, so removing any of them or changing their order is likely to cause problems:
-# they are just being used to keep the functions organized instead of having one huge file, not to make dependency management resilient.
-#=====================================================================================================================================================
-. (Join-Path -Path $PSScriptRoot -ChildPath "config.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\utility-funs.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\dicom-funs.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-1.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-2.ps1")
-. (Join-Path -Path $PSScriptRoot -ChildPath "lib\stage-3.ps1")
-######################################################################################################################################################
-
 
 ######################################################################################################################################################
 # Require some directories:
@@ -101,28 +100,87 @@ Require-DirectoryExists -DirectoryPath $global:noResultsStoredItemsDirPath -Crea
 # Move request tickets:
 Require-DirectoryExists -DirectoryPath $global:queuedStudyMovesDirPath     -CreateIfNotExists $true
 Require-DirectoryExists -DirectoryPath $global:processedStudyMovesDirPath  -CreateIfNotExists $true
+
+# Worklist query directories:
+Require-DirectoryExists -DirectoryPath $global:PrefetchCachePath           -CreateIfNotExists $true
+######################################################################################################################################################
+
+
+######################################################################################################################################################
+# Initialize Logging:
+######################################################################################################################################################
+# Create logs directory
+$logDir = Join-Path $global:cacheDirBasePath "logs"
+Test-AndCreateDirectory $logDir
+
+# Initialize logging
+$logFile = Join-Path $logDir "qr-tool-$(Get-Date -Format 'yyyyMMdd').log"
+Set-LogFile -Path $logFile
+
+# Set log level from configuration
+if ($null -ne $global:logLevel) {
+    Set-LogLevel -Level $global:logLevel
+}
+
+Write-Log "QR Tool started" -Level "INFO"
+######################################################################################################################################################
+
+
+######################################################################################################################################################
+# Check if worklist query service should be started:
+######################################################################################################################################################
+if ($StartWorklistQuery) {
+    try {
+        Write-Indented "Starting DICOM Modality Worklist Query Service..."
+        Write-Log "Starting DICOM Modality Worklist Query Service" -Level "INFO"
+        Start-PeriodicWorklistQuery
+        # Note: This will run indefinitely, so the main processing loop below will not execute
+    }
+    catch {
+        Write-Exception -Exception $_ -Message "Error starting worklist query service"
+        Exit 1
+    }
+    Exit
+}
 ######################################################################################################################################################
 
 
 ######################################################################################################################################################
 # Main:
 ######################################################################################################################################################
-do {
-    Do-Stage1 # examine incoming stored files and enqueue them if not already processed.
-    Do-Stage2 # examine queued stored files, find studies for the patient create move requests for them if not already moved.
-    Do-Stage3 # examine queued move requests and move those studies.
+# Global error handler
+$global:ErrorActionPreference = "Stop"
 
-    ##################################################################################################################################################
-    # All stagees complete, maybe sleep and loop, otherwise fall through and exit.
-    ##################################################################################################################################################
-    if ($global:sleepSeconds -gt 0) {
-        Write-Indented " " # Just print a newline for output readability.
-        Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
-        Start-Sleep -Seconds $global:sleepSeconds
-        Write-Host " done."
-    }
-    ##################################################################################################################################################
-} while ($global:sleepSeconds -gt 0)#
+try {
+    do {
+        try {
+            Do-Stage1 # examine incoming stored files and enqueue them if not already processed.
+            Do-Stage2 # examine queued stored files, find studies for the patient create move requests for them if not already moved.
+            Do-Stage3 # examine queued move requests and move those studies.
+        }
+        catch {
+            Write-Exception -Exception $_ -Message "Error in processing stage"
+            # Continue with next iteration rather than breaking the loop
+        }
+
+        ##################################################################################################################################################
+        # All stagees complete, maybe sleep and loop, otherwise fall through and exit.
+        ##################################################################################################################################################
+        if ($global:sleepSeconds -gt 0) {
+            Write-Indented " " # Just print a newline for output readability.
+            Write-Indented "Sleeping $($global:sleepSeconds) seconds..." -NoNewLine
+            Start-Sleep -Seconds $global:sleepSeconds
+            Write-Host " done."
+        }
+        ##################################################################################################################################################
+    } while ($global:sleepSeconds -gt 0)#
+    
+    Write-Log "QR Tool completed successfully" -Level "INFO"
+}
+catch {
+    Write-Exception -Exception $_ -Message "Unhandled exception in main script"
+    Exit 1
+}
 ######################################################################################################################################################
 Write-Indented " " # Just print a newline for output readability.
 Write-Indented "Done."

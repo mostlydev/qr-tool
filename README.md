@@ -101,7 +101,8 @@ All configuration is done in the `config.ps1` file.
     *   Edit `config.ps1` to match your environment.
 
 3.  **Run the Tool:**
-    *   Run the `qr-tool.ps1` script from a PowerShell console.
+    *   Run the `qr-tool.ps1` script from a PowerShell console in Windows.  If you are not currently on windows then use 
+    `ssh windev "cd C:\dev\qr-tool && powershell -ExecutionPolicy Bypass -File qr-tool.ps1"`.
 
 <!-- TASKMASTER_EXPORT_START -->
 > 🎯 **Taskmaster Export** - 2025-06-27 18:02:31 UTC

@@ -30,3 +30,8 @@ node_modules/
 # tasks/
 
 config.ps1
+.cursor/
+.roo*
+CLAUDE.md
+.claude/
+.taskmaster/

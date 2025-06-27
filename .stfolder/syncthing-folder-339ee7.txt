@@ -1,0 +1,5 @@
+# This directory is a Syncthing folder marker.
+# Do not delete.
+
+folderID: ntt2x-hnws6
+created: 2025-06-27T14:23:52-04:00

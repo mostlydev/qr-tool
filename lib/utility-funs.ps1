@@ -84,6 +84,19 @@ function Require-DirectoryExists {
 
 
 #################################################################################################################################################
+# Test-AndCreateDirectory: PowerShell approved verb version of directory creation function
+#################################################################################################################################################
+function Test-AndCreateDirectory {
+    param([string]$DirectoryPath)
+    
+    if (-not (Test-Path -Path $DirectoryPath)) {
+        $null = New-Item -ItemType Directory -Path $DirectoryPath -Force
+    }
+}
+#################################################################################################################################################
+
+
+#################################################################################################################################################
 # Require-NuGetPackage: this is not currently used since we now share a fo-dicom DLL with FoDicomCmdlet, but could be useful in the future?
 #################################################################################################################################################
 function Require-NuGetPackage {
