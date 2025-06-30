@@ -215,6 +215,8 @@ function Get-PatientStudiesWithRetry {
         Write-LogDebug "Query returned $($studies.Count) studies for patient $PatientName"
         return $studies
     } -MaxRetries 3 -RetryDelayMs 2000 -OperationName $operationName
+}
+#################################################################################################################################################
 
 #################################################################################################################################################
 # Mask-PatientName
