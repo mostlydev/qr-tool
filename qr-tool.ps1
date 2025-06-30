@@ -68,6 +68,21 @@ $global:processedStudyMovesDirPath  = Join-Path -Path $global:cacheDirBasePath -
 
 
 ######################################################################################################################################################
+# Require some directories:
+######################################################################################################################################################
+Require-DirectoryExists -DirectoryPath $global:cacheDirBasePath            # if this doesn't already exist, assume something is seriously wrong, bail.
+# Stored items and their sentinels:
+Require-DirectoryExists -DirectoryPath $global:incomingStoredItemsDirPath  # if this doesn't already exist, assume something is seriously wrong, bail.
+Require-DirectoryExists -DirectoryPath $global:queuedStoredItemsDirPath    -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $global:processedStoredItemsDirPath -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $global:rejectedStoredItemsDirPath  -CreateIfNotExists $true
+# Move request tickets:
+Require-DirectoryExists -DirectoryPath $global:queuedStudyMovesDirPath     -CreateIfNotExists $true
+Require-DirectoryExists -DirectoryPath $global:processedStudyMovesDirPath  -CreateIfNotExists $true
+######################################################################################################################################################
+
+
+######################################################################################################################################################
 # Include FoDicomCmdlets DLL:
 ######################################################################################################################################################
 $global:foDicomCmdletsDLLPath = Join-Path -Path $PSScriptRoot -ChildPath "FoDicomCmdlets\bin\Release\FoDicomCmdlets.dll"

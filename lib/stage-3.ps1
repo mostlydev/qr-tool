@@ -6,7 +6,7 @@ function Do-Stage3 {
     $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.move-request
 
     if ($filesInQueuedStudyMovesDir.Count -eq 0) {
-        Write-Indented "Stage #3: No DCM files found in queuedStudyMoves."
+        Write-Indented "Stage #3: No files found in queuedStudyMoves."
     } else {
         $counter = 0
         

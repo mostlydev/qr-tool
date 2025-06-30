@@ -121,6 +121,111 @@ function Do-Stage2 {
 
             $null = Touch-File $studyMoveTicketFilePath
 
+        Indent
+        
+        foreach ($file in $filesInQueuedStoredItemsDir) {
+            $counter++
+            
+            Write-Indented "Processing file #$counter/$($filesInQueuedStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
+
+            Indent
+            
+            $tags = Extract-StudyTags -File $file
+
+            if ($null -ne $global:findAndMoveFixedModality) {
+                $modality = $global:findAndMoveFixedModality
+            } else {
+                $modality = $tags.Modality
+            }
+
+            WriteStudyTags-Indented -StudyTags $tags
+            Write-Indented " " # Just print a newline for output readability.
+
+            if ($global:maskPatientNames) {
+                Write-Indented "Looking up studies for $(Mask-PatientName -Name $tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
+            } else {
+                Write-Indented "Looking up studies for $($tags.PatientName)/$($tags.PatientBirthdate)/$modality..."
+            }
+
+            $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
+              -MyAE             $global:myAE `
+              -QrServerAE       $global:qrServerAE `
+              -QrServerHost     $global:qrServerHost `
+              -QrServerPort     $global:qrServerPort `
+              -PatientName      $tags.PatientName `
+              -PatientBirthDate $tags.PatientBirthDate `
+              -Modality         $modality `
+              -MonthsBack       $global:studyFindMonthsBack
+
+            if ($cFindResponses -eq $null -or $cFindResponses.Count -eq 0) {
+                Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                Remove-Item -Path $file.FullName
+
+                Outdent
+
+                Continue
+            }
+
+            if ($cFindResponses.Count -eq 1) {
+                Write-Indented "... only a final response was received (0 matching results)."
+            } else {
+                $cFindStatus    = $cFindResponses[-1]
+                $cFindResponses = $cFindResponses[0..($cFindResponses.Count - 2)]
+
+                if ($cFindStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
+                    Write-Indented "... C-Find's final response status was $($cFindStatus.Status). Removing queued file $($file.FullName), user may re-store it to trigger a new attempt."
+                    Remove-Item -Path $file.FullName
+
+                    Outdent
+                    
+                    Continue
+                }
+
+                Write-Indented "... C-Find was successful, move request tickets may be created."
+
+                Indent
+
+                $responseCounter = 0;
+                
+                foreach ($response in $cFindResponses) {
+                    $responseCounter++
+
+                    $dataset          = $response.Dataset
+                    $studyInstanceUID = Get-DicomTagString -Dataset $dataset -Tag ([Dicom.DicomTag]::StudyInstanceUID)
+
+                    Write-Indented "Examine response #$responseCounter/$($cFindResponses.Count) with SUID $studyInstanceUID..."
+
+                    Indent
+                    
+                    $studyMoveTicketFileName = "$studyInstanceUID.move-request" 
+                    $foundFile               = Find-FileInDirectories `
+                      -Filename $studyMoveTicketFileName `
+                      -Directories @($global:queuedStudyMovesDirPath, $global:processedStudyMovesDirPath)
+
+                    if ($foundFile -eq $null) {
+                        $studyMoveTicketFilePath = Join-Path -Path $global:queuedStudyMovesDirPath -ChildPath "$studyInstanceUID.move-request" 
+
+                        Write-Indented "Creating move request ticket at $(Trim-BasePath -Path $studyMoveTicketFilePath)..." -NoNewLine
+
+                        $null = Touch-File $studyMoveTicketFilePath
+
+                        Write-Host " done." 
+                    } else {
+                        Write-Indented "Item for SUID $studyInstanceUID already exists as $(Trim-BasePath -Path $foundFile)."
+                        # don't delete or move anything yet, we'll do it further down after iterating over all the responses.
+                    }
+
+                    Outdent
+                }    
+                
+                Outdent
+            }
+            
+            $processedStoredItemPath = Join-Path -Path $global:processedStoredItemsDirPath -ChildPath $file.Name
+
+            Write-Indented " " # Just print a newline for output readability.
+            Write-Indented "Moving $(Trim-BasePath -Path $file.FullName) to $(Trim-BasePath -Path $processedStoredItemPath)... " -NoNewLine
+            Move-Item -Path $file.FullName -Destination $processedStoredItemPath
             Write-Host " done."
           }
           else {

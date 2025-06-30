@@ -1,7 +1,8 @@
 #################################################################################################################################################
 # Globals meant not for configuration use, these probably shouldn't be changed by the user.
 #################################################################################################################################################
-$global:indent                   = 0
+
+$global:indent                   = 0
 #################################################################################################################################################
 
 
@@ -205,8 +206,6 @@ function Hash-String {
         [PSObject]$HashInput
     )
 
-    Write-Indented "Hash Input:       $HashInput"
-
     $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
     $hashBytes     = $hashAlgorithm.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($HashInput))
     $hashOutput    = [System.BitConverter]::ToString($hashBytes).Replace("-", "")
@@ -218,6 +217,7 @@ function Hash-String {
 #################################################################################################################################################
 
 
+# Touch-File
 #################################################################################################################################################
 function Touch-File {
     param(

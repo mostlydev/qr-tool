@@ -193,3 +193,6 @@ All configuration is done in the `config.ps1` file.
 
 > 📋 **End of Taskmaster Export** - Tasks are synced from your project using the `sync-readme` command.
 <!-- TASKMASTER_EXPORT_END -->
+Prior to runninig qr-tool.ps1, build the FoDicomCmdlets solution in Release mode as the script will need to make use of both the DLL it will build and the DLL of the copy of fo-dicom that the solution will install in itjs packages folder.
+
+Before running the script, be sure to copy config.template.ps1 to config.ps1 to and make any required changes.
